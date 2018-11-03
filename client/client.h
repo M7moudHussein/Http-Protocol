@@ -7,7 +7,14 @@
 
 
 class client {
+public:
+    bool establish_connection();
 
+    void send_request();
+
+    void recieve_data();
+
+    void send_data();
 };
 
 
