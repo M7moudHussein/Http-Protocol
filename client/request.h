@@ -36,8 +36,8 @@ public:
 
 private:
     request_type type;
-    std::string file_name;
-    std::string host_name;
+    std::string file;
+    std::string host;
     int port_number;
 };
 

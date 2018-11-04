@@ -8,12 +8,13 @@
 
 #include <queue>
 #include "string"
+#include <fstream>
 #include "../client/request.h"
 
 class file_reader {
-
+public:
 /*parses the requests file for the client */
-    std::queue<request> parse_requests(std::string request_file);
+    std::queue<request *> parse_requests(std::string request_file);
 };
 
 
