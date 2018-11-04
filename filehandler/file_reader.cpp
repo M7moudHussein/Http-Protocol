@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include "file_reader.h"
+
 std::queue<request *> file_reader::parse_requests(std::string request_file) {
     std::queue<request *> requests;
     std::ifstream infile(request_file);
@@ -13,8 +14,6 @@ std::queue<request *> file_reader::parse_requests(std::string request_file) {
         std::vector<std::string> attributes;
         std::stringstream check1(line);
         std::string intermediate;
-
-        // Tokenizing w.r.t. space ' '
         while (getline(check1, intermediate, ' ')) {
             attributes.push_back(intermediate);
         }

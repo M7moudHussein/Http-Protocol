@@ -11,6 +11,7 @@
 #include <iostream>
 #include "filehandler/file_reader.h"
 #include "client/request.h"
+#include "client/client.h"
 
 int main(int argc, char const *argv[])
 {
@@ -24,5 +25,6 @@ int main(int argc, char const *argv[])
         std::cout <<r->get_type()<<" "<<r->get_file_name()<<" "<<r->get_host_name()<<" "<<r->get_port_num()<<"\n";
         tmp_q.pop();
     }
-
+    client client1;
+    client1.establish_connection(8080);
 }
