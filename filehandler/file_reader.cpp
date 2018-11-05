@@ -6,6 +6,8 @@
 #include <sstream>
 #include "file_reader.h"
 
+#define DEFAULT_PORT 80
+
 std::queue<request *> file_reader::parse_requests(std::string request_file) {
     std::queue<request *> requests;
     std::ifstream infile(request_file);
@@ -28,7 +30,7 @@ std::queue<request *> file_reader::parse_requests(std::string request_file) {
         if (attributes.size() == 4)
             r = new request(type, attributes[1], attributes[2], stoi(attributes[3]));
         else
-            r = new request(type, attributes[1], attributes[2]);
+            r = new request(type, attributes[1], attributes[2], DEFAULT_PORT);
         requests.push(r);
     }
     return requests;

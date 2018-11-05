@@ -3,5 +3,22 @@ project(Http_Protocol)
 
 set(CMAKE_CXX_STANDARD 14)
 
+include_directories(client)
+include_directories(filehandler)
+include_directories(models)
+include_directories(server)
+
 add_executable(Http_Protocol
-        main.cpp server/server_dispatcher.cpp server/server_dispatcher.h server/server_worker.cpp server/server_worker.h server/response.cpp server/response.h client/request.cpp client/request.h client/client.cpp client/client.h filehandler/file_reader.cpp filehandler/file_reader.h)
+        client/client.cpp
+        client/client.h
+        filehandler/file_reader.cpp
+        filehandler/file_reader.h
+        models/request.cpp
+        models/request.h
+        models/response.cpp
+        models/response.h
+        server/server_dispatcher.cpp
+        server/server_dispatcher.h
+        server/server_runner.cpp
+        server/server_worker.cpp
+        server/server_worker.h)

@@ -7,7 +7,6 @@
 
 #include <string>
 
-#define DEFAULT_PORT 80
 enum request_type {
     GET,
     POST
@@ -15,11 +14,17 @@ enum request_type {
 
 class request {
 public:
-    request(request_type type, std::string file_name, std::string host_name, int port_num = DEFAULT_PORT);
+    request() {};
+
+    request(request_type type, std::string file_name, std::string host_name, int port_num);
 
     void set_type(request_type r_type);
 
     request_type get_type();
+
+    void set_path(std::string path);
+
+    std::string get_path();
 
     void set_file_name(std::string file_name);
 
@@ -36,6 +41,7 @@ public:
 
 private:
     request_type type;
+    std::string path;
     std::string file;
     std::string host;
     int port_number;

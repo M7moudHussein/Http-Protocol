@@ -7,7 +7,9 @@
 
 
 class response {
-
+public:
+    static response RESPONSE_200;
+    static response RESPONSE_404;
 };
 
 
