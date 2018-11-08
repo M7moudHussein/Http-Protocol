@@ -15,7 +15,7 @@ request_type request::get_type() {
     return type;
 }
 
-std::string request::get_file_name() {
+std::string request::get_path() {
     return file;
 }
 
@@ -25,4 +25,22 @@ int request::get_port_num() {
 
 std::string request::get_host_name() {
     return host;
+}
+
+void request::set_type(request_type type) {
+    request::type = type;
+}
+
+void request::set_path(std::string file_name) {
+    request::file = file_name;
+
+}
+
+void request::set_host_name(std::string host_name) {
+    request::host = host_name;
+
+}
+
+void request::set_port_num(int port_num) {
+    request::port_number = port_num;
 }

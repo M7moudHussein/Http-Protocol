@@ -18,17 +18,13 @@ public:
 
     request(request_type type, std::string file_name, std::string host_name, int port_num);
 
-    void set_type(request_type r_type);
+    void set_type(request_type type);
 
     request_type get_type();
 
-    void set_path(std::string path);
+    void set_path(std::string file_name);
 
     std::string get_path();
-
-    void set_file_name(std::string file_name);
-
-    std::string get_file_name();
 
     void set_host_name(std::string host_name);
 
@@ -41,7 +37,6 @@ public:
 
 private:
     request_type type;
-    std::string path;
     std::string file;
     std::string host;
     int port_number;
