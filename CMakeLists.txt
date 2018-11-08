@@ -21,4 +21,4 @@ add_executable(Http_Protocol
         server/server_dispatcher.h
         server/server_runner.cpp
         server/server_worker.cpp
-        server/server_worker.h)
+        server/server_worker.h client/client_runner.cpp client/request_sender.cpp client/request_sender.h)

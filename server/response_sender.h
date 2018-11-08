@@ -5,6 +5,7 @@
 #ifndef HTTP_PROTOCOL_RESPONSE_SENDER_H
 #define HTTP_PROTOCOL_RESPONSE_SENDER_H
 
+#include "../models/response.h"
 
 class response_sender {
 public:

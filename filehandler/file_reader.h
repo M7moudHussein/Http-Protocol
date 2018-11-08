@@ -15,6 +15,7 @@ class file_reader {
 public:
 /*parses the requests file for the client */
     std::queue<request *> parse_requests(std::string request_file);
+
 };
 
 

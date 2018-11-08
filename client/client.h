@@ -9,15 +9,27 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include <cstring>
+#include <arpa/inet.h>
+#include "queue"
+#include "../models/request.h"
+#include "../filehandler/file_reader.h"
+
 class client {
 public:
+    client(std::queue<request *> requests);
     bool establish_connection(int server_port);
 
-    void send_request();
 
-    void recieve_data();
+private:
+    std::queue<request *> requests;
 
-    void send_data();
+    /*in the case of GET*/
+    void handle_get_reponse();
+
+    /*in the case of POST*/
+    void handle_post_request();
+
 };
 
 
