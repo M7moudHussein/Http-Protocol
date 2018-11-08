@@ -19,6 +19,7 @@ class client {
 public:
     client(std::queue<request *> requests);
     bool establish_connection(int server_port);
+    void send_requests();
 
 
 private:

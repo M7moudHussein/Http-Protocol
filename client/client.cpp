@@ -45,5 +45,9 @@ void client::handle_post_request() {
 //TODO implement sending file for server on post request
 }
 
+void client::send_requests() {
+//TODO call request sender and delegate the mission of sending requests to it
+}
+
 
 
