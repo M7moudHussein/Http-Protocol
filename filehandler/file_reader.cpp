@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <sys/stat.h>
 #include "file_reader.h"
 
 #define DEFAULT_PORT 80
@@ -34,5 +35,20 @@ std::queue<request *> file_reader::parse_requests(std::string request_file) {
         requests.push(r);
     }
     return requests;
+}
+
+int file_reader::read_file(std::string file_path, char **buffer) {
+    int read_bytes;
+    FILE *fp;
+    fp = fopen(file_path.c_str(), "rb");
+    if (fp == nullptr) {
+        return -1;
+    }
+    fseek(fp, 0, SEEK_END);
+    read_bytes = ftell(fp);
+    rewind(fp);
+    *buffer = (char *) malloc((read_bytes + 1) * sizeof(char));
+    fread((char *) file_path.c_str(), read_bytes, 1, fp);
+    return read_bytes;
 }
 
