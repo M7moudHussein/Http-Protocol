@@ -46,8 +46,8 @@ void request::set_port_num(int port_num) {
 }
 
 std::string request::format() {
-    std::string req="";
-    req += ((type == GET) ? "GET" : "POST") + file + "HTTP/"+ HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
+    std::string req = "";
+    req += ((type == GET) ? "GET" : "POST") + file + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
     req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
     req += CARRIAGE_RET;
     req += LINE_FEED;

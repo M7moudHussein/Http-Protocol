@@ -2,15 +2,17 @@
 // Created by salma on 11/3/18.
 //
 
+#include <iostream>
+#include <file_reader.h>
 #include "server_worker.h"
 
-struct thread_arg {
+struct thread_args {
+    int socket_no;
     request *request_to_process;
-    response_sender *sender;
 
-    thread_arg(request *request_to_process, response_sender *sender) {
+    thread_args(int socket_no, request *request_to_process) {
+        this->socket_no = socket_no;
         this->request_to_process = request_to_process;
-        this->sender = sender;
     }
 };
 
@@ -18,32 +20,43 @@ void *handle_request(void *sender);
 
 response *handle_get_request(request *request_to_process);
 
-server_worker::server_worker(request *req) {
-    this->request_to_process = req;
+server_worker::server_worker(request *request_to_process, int socket_no) {
+    this->request_to_process = request_to_process;
+    this->socket_no = socket_no;
 }
 
-void server_worker::process_request(response_sender *res_sender) {
-    thread_arg *thread_args = new thread_arg(request_to_process, res_sender);
-    int rc = pthread_create(new pthread_t, NULL, handle_request, thread_args);
+void server_worker::process_request() {
+    thread_args *args = new thread_args(socket_no, request_to_process);
+    int rc = pthread_create(new pthread_t, NULL, handle_request, args);
 }
 
-void *handle_request(void *thread_args) {
-    thread_arg *args = (thread_arg *) thread_args;
+void *handle_request(void *arguments) {
+    thread_args *args = (thread_args *) arguments;
     request *request_to_process = args->request_to_process;
-    response_sender *res_sender = args->sender;
-
+    int socket_no = args->socket_no;
+    response *res;
     switch (request_to_process->get_type()) {
         case POST:
-            res_sender->send_response(&response::RESPONSE_200);
+            //TODO set res to 200 OK or whatever
             break;
         case GET:
-            res_sender->send_response(handle_get_request(request_to_process));
+            res = handle_get_request(request_to_process);
             break;
         default:
             exit(EXIT_FAILURE);
     }
+    int test = send(socket_no, res->to_string(), res->get_length(), 0);
+    std::cout << test << std::endl;
 }
 
 response *handle_get_request(request *request_to_process) {
-    //TODO handle different types of files (text, html, images)
+    char *file_data;
+    int data_length;
+    file_reader reader;
+    data_length = reader.read_file(request_to_process->get_path(), &file_data);
+    if (data_length == -1) {
+        //TODO send 404
+    } else {
+        //TODO set request body
+    }
 }

@@ -28,7 +28,8 @@ void server_dispatcher::run_server(int port_no) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        process_request(socket_no);
+        server_worker *worker = process_request(socket_no);
+        worker->process_request();
     }
 }
 
@@ -63,7 +64,7 @@ server_worker *server_dispatcher::process_request(int socket_no) {
     if (data_len > -1) {
         request *req = server_dispatcher::parse_request(buffer);
         delete[] buffer;
-        server_worker *worker = new server_worker(req);
+        server_worker *worker = new server_worker(req, socket_no);
         delete req;
         return worker;
     }

@@ -39,6 +39,8 @@ public:
     std::string format();
 
 
+    std::string get_http_version();
+
 private:
     request_type type;
     std::string file;
