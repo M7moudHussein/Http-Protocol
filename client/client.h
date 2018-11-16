@@ -17,14 +17,18 @@
 
 class client {
 public:
-    client(std::queue<request *> requests);
+    client(std::string server_ip);
+
     bool establish_connection(int server_port);
-    void send_requests();
+
+    bool close_connection();
+
+    int send_request(request *req);
 
 
 private:
-    std::queue<request *> requests;
-
+    std::string server_ip;
+    int sock_fd = 0;
     /*in the case of GET*/
     void handle_get_reponse();
 

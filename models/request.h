@@ -6,7 +6,9 @@
 #define HTTP_PROTOCOL_REQUEST_H
 
 #include <string>
-
+#define CARRIAGE_RET "\r"
+#define LINE_FEED "\n"
+#define HTTP_VERSION "1.0"
 enum request_type {
     GET,
     POST
@@ -33,6 +35,8 @@ public:
     void set_port_num(int port_num);
 
     int get_port_num();
+
+    std::string format();
 
 
 private:

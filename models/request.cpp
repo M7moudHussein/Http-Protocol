@@ -44,3 +44,13 @@ void request::set_host_name(std::string host_name) {
 void request::set_port_num(int port_num) {
     request::port_number = port_num;
 }
+
+std::string request::format() {
+    std::string req="";
+    req += ((type == GET) ? "GET" : "POST") + file + "HTTP/"+ HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
+    req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
+    req += CARRIAGE_RET;
+    req += LINE_FEED;
+    //TODO add "KEEP ALIVE"
+    return req;
+}
