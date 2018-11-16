@@ -61,7 +61,30 @@ response *handle_get_request(request *request_to_process) {
         res->set_http_version(request_to_process->get_http_version());
         res->set_status(CODE_200);
         res->set_body(file_data, data_length);
+//        const char *mime;
+//        magic_t magic = magic_open(MAGIC_MIME_TYPE);
+//        magic_load(magic, NULL);
+//        magic_compile(magic, NULL);
+//        mime = magic_file(magic, request_to_process->get_path().c_str());
+//        magic_close(magic);
 
+        std::string extension;
+        for (int i = request_to_process->get_path().length() - 1; i >= 0; i--) {
+            if (request_to_process->get_path()[i] == '.') {
+                extension = request_to_process->get_path().substr(i + 1);
+            }
+        }
+
+        std::string content_type;
+        if (extension == "txt") {
+            content_type = "text/plain";
+        } else if (extension == "html") {
+            content_type = "text/html";
+        } else {
+            content_type = "image" + std::string("/") + extension;
+        }
+
+        res->set_content_type(content_type.c_str());
         return res;
     }
 }

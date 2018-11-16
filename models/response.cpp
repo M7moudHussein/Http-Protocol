@@ -6,12 +6,13 @@
 #include "response.h"
 
 char *response::to_string() {
-    char *reply =
-            const_cast<char *>("HTTP/1.1 200 OK\n"
-                               "Content-Length: 15\n"
-                               "\n"
-                               "sdfkjsdnbfkjbsf");
-    return reply;
+    std::string response_line_1 = "HTTP/" + http_version + " " + get_status_string() + "\r\n";
+    std::string response_line_2 = "Content-Length: " + std::to_string(body_length) + "\r\n";
+    std::string response_line_3 = "Content-Type: " + content_type;
+    std::string response_line_4 = "\r\n";
+    std::string response_line_5 = response_body;
+    return const_cast<char *>((response_line_1 + response_line_2 + response_line_3 + response_line_4 +
+                               response_line_5).c_str());
 }
 
 size_t response::get_length() {
@@ -37,4 +38,19 @@ void response::set_http_version(std::string http_version) {
 
 std::string response::get_http_version() {
     return this->http_version;
+}
+
+void response::set_content_type(const char *content_type) {
+    this->content_type = std::string(content_type);
+}
+
+std::string response::get_status_string() {
+    switch (status_code) {
+        case CODE_200:
+            return "200 OK";
+        case CODE_404:
+            return "404 NOT FOUND";
+        default:
+            exit(EXIT_FAILURE);
+    }
 }
