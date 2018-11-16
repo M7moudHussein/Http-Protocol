@@ -1,16 +1,13 @@
 #ifndef HTTP_PROTOCOL_CLIENT_H
 #define HTTP_PROTOCOL_CLIENT_H
 
-#include <stdio.h>
 #include <sys/socket.h>
-#include <stdlib.h>
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
 #include <response.h>
-#include "queue"
-#include "../models/request.h"
-#include "../filehandler/file_reader.h"
+#include <request.h>
+#include <file_writer.h>
 
 class client {
 public:
@@ -24,17 +21,15 @@ public:
 
     int send_request(request *req);
 
-    /*in the case of GET*/
     void handle_get_response(request *, response *);
 
-    /*in the case of POST*/
     void handle_post_request();
 
 
 private:
-    std::string server_ip;
     int sock_fd = 0;
+    std::string server_ip;
+    file_writer writer;
 };
 
-
-#endif //HTTP_PROTOCOL_CLIENT_H
+#endif

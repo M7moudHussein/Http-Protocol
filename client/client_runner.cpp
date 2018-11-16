@@ -38,6 +38,7 @@ int main(int argc, char const *argv[]) {
             } else {
                 // TODO HANDLE SENDING ERRORS
             }
+            client.close_connection();
         } else {
             // TODO HANDLE ERRORS
         }

@@ -39,12 +39,7 @@ bool client::establish_connection(int server_port) {
 }
 
 void client::handle_get_response(request *req, response *res) {
-    int body_length = res->get_body_length();
-    char *body = res->get_body();
-    FILE *file;
-    file = fopen(req->get_path().c_str(), "w");
-    fwrite(body, sizeof(char), body_length, file);
-    fclose(file);
+    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
 }
 
 void client::handle_post_request() {
@@ -53,7 +48,7 @@ void client::handle_post_request() {
 
 int client::send_request(request *req) {
     std::string req_msg = req->format();
-    return send(sock_fd,req_msg.c_str(), req_msg.length(), 0);
+    return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
 }
 
 
