@@ -6,6 +6,7 @@
 #define HTTP_PROTOCOL_REQUEST_H
 
 #include <string>
+
 #define CARRIAGE_RET "\r"
 #define LINE_FEED "\n"
 #define HTTP_VERSION "1.0"
@@ -38,15 +39,16 @@ public:
 
     std::string format();
 
-    void build(std::string req_msg);
-
     std::string get_http_version();
+
+    void build(std::string req_msg);
 
 private:
     request_type type;
     std::string file;
     std::string host;
     int port_number;
+    std::string http_version;
 };
 
 

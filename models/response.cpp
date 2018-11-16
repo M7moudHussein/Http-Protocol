@@ -17,3 +17,24 @@ char *response::to_string() {
 size_t response::get_length() {
     return strlen(to_string());
 }
+
+Status_code response::get_status() {
+    return CODE_200;
+}
+
+void response::set_status(Status_code status_code) {
+    this->status_code = status_code;
+}
+
+void response::set_body(char *response_body, int body_length) {
+    this->response_body = response_body;
+    this->body_length = body_length;
+}
+
+void response::set_http_version(std::string http_version) {
+    this->http_version = http_version;
+}
+
+std::string response::get_http_version() {
+    return this->http_version;
+}

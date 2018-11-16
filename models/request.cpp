@@ -56,6 +56,10 @@ std::string request::format() {
     return req;
 }
 
+std::string request::get_http_version() {
+    return this->http_version;
+}
+
 void request::build(std::string req_msg) {
     std::stringstream stream, first_line, second_line;
     std::string temp_buffer;
@@ -82,5 +86,3 @@ void request::build(std::string req_msg) {
     request::host = host_name;
     request::port_number = stoi(port_number);
 }
-
-
