@@ -1,7 +1,3 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #ifndef HTTP_PROTOCOL_RESPONSE_H
 #define HTTP_PROTOCOL_RESPONSE_H
 
@@ -24,9 +20,15 @@ public:
 
     char *to_string();
 
+    void build(std::string res_msg);
+
     size_t get_length();
 
     void set_body(char *body, int body_length);
+
+    char *get_body();
+
+    int get_body_length();
 
     void set_http_version(std::string http_version);
 
@@ -43,4 +45,4 @@ private:
 };
 
 
-#endif //HTTP_PROTOCOL_RESPONSE_H
+#endif

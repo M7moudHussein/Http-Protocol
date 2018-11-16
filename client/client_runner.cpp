@@ -7,6 +7,8 @@
 #include "queue"
 #include "client.h"
 
+#define MAX_BUFFER_SIZE 1452 //TODO properties
+
 int main(int argc, char const *argv[]) {
     //TODO check on argv
     file_reader reader;
@@ -18,13 +20,26 @@ int main(int argc, char const *argv[]) {
         bool connected = client.establish_connection(req->get_port_num());
         if (connected) {
             if (client.send_request(req) >= 0) {
-                //handle post and get requests;
-
+                char *res_msg;
+                if (recv(client.get_socket_fd(), res_msg, MAX_BUFFER_SIZE, 0) >= 0) {
+                    response *res = new response();
+                    res->build(res_msg);
+                    if (res->get_status() == Status_code::CODE_200) {
+                        if (req->get_type() == GET)
+                            client.handle_get_response(req, res);
+                        else
+                            client.handle_post_request();
+                    } else {
+                        // TODO HANDLE 'NOT FOUND' ERROR
+                    }
+                } else {
+                    // TODO HANDLE RECEIVING ERRORS
+                }
             } else {
-                //TODO HANDLE SENDING ERRORS
+                // TODO HANDLE SENDING ERRORS
             }
         } else {
-            //TODO HANDLE ERRORS
+            // TODO HANDLE ERRORS
         }
     }
 }

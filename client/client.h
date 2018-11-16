@@ -1,7 +1,3 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #ifndef HTTP_PROTOCOL_CLIENT_H
 #define HTTP_PROTOCOL_CLIENT_H
 
@@ -20,21 +16,24 @@ class client {
 public:
     client(std::string server_ip);
 
+    int get_socket_fd();
+
     bool establish_connection(int server_port);
 
     bool close_connection();
 
     int send_request(request *req);
 
+    /*in the case of GET*/
+    void handle_get_response(request *, response *);
+
+    /*in the case of POST*/
+    void handle_post_request();
+
 
 private:
     std::string server_ip;
     int sock_fd = 0;
-    /*in the case of GET*/
-    void handle_get_reponse();
-
-    /*in the case of POST*/
-    void handle_post_request();
 };
 
 

@@ -14,6 +14,10 @@ char *response::to_string() {
     return reply;
 }
 
+void response::build(std::string res_msg) {
+    // TODO: implement parsing
+}
+
 size_t response::get_length() {
     return strlen(to_string());
 }
@@ -29,6 +33,14 @@ void response::set_status(Status_code status_code) {
 void response::set_body(char *response_body, int body_length) {
     this->response_body = response_body;
     this->body_length = body_length;
+}
+
+char *response::get_body() {
+    return response_body;
+}
+
+int response::get_body_length() {
+    return body_length;
 }
 
 void response::set_http_version(std::string http_version) {

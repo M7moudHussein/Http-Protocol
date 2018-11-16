@@ -8,6 +8,10 @@ client::client(std::string server_ip) {
     client::server_ip = server_ip;
 }
 
+int client::get_socket_fd() {
+    return sock_fd;
+}
+
 bool client::establish_connection(int server_port) {
     struct sockaddr_in server_addr;
     //create socket
@@ -34,8 +38,13 @@ bool client::establish_connection(int server_port) {
     return true;
 }
 
-void client::handle_get_reponse() {
-//TODO implement GET response from server and saving received file
+void client::handle_get_response(request *req, response *res) {
+    int body_length = res->get_body_length();
+    char *body = res->get_body();
+    FILE *file;
+    file = fopen(req->get_path().c_str(), "w");
+    fwrite(body, sizeof(char), body_length, file);
+    fclose(file);
 }
 
 void client::handle_post_request() {
