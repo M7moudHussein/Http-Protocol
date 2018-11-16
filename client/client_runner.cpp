@@ -19,6 +19,7 @@ int main(int argc, char const *argv[]) {
         if (connected) {
             if (client.send_request(req) >= 0) {
                 //handle post and get requests;
+
             } else {
                 //TODO HANDLE SENDING ERRORS
             }

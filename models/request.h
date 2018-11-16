@@ -38,6 +38,7 @@ public:
 
     std::string format();
 
+    void build(std::string req_msg);
 
     std::string get_http_version();
 

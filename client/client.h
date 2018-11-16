@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
+#include <response.h>
 #include "queue"
 #include "../models/request.h"
 #include "../filehandler/file_reader.h"
@@ -34,7 +35,6 @@ private:
 
     /*in the case of POST*/
     void handle_post_request();
-
 };
 
 
