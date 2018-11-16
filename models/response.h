@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <magic.h>
 
 enum Status_code {
     CODE_404,
@@ -11,12 +12,11 @@ enum Status_code {
 
 class response {
 public:
-    static response RESPONSE_200;
-    static response RESPONSE_404;
-
     void set_status(Status_code code);
 
     Status_code get_status();
+
+    std::string get_status_string();
 
     char *to_string();
 
@@ -34,14 +34,18 @@ public:
 
     std::string get_http_version();
 
+    void set_content_type(const char *string);
+
 private:
     static const char CARRIAGE_RETURN = '\r';
     static const char NEW_LINE = '\n';
+
 
     Status_code status_code;
     char *response_body;
     int body_length;
     std::string http_version;
+    std::string content_type;
 };
 
 
