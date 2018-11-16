@@ -57,6 +57,11 @@ response *handle_get_request(request *request_to_process) {
     if (data_length == -1) {
         //TODO send 404
     } else {
-        //TODO set request body
+        response *res = new response();
+        res->set_http_version(request_to_process->get_http_version());
+        res->set_status(CODE_200);
+        res->set_body(file_data, data_length);
+
+        return res;
     }
 }

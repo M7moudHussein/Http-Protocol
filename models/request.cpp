@@ -54,3 +54,7 @@ std::string request::format() {
     //TODO add "KEEP ALIVE"
     return req;
 }
+
+std::string request::get_http_version() {
+    return this->http_version;
+}

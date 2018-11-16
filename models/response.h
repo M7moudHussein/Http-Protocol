@@ -8,20 +8,38 @@
 
 #include <string>
 
+enum Status_code {
+    CODE_404,
+    CODE_200
+};
+
 class response {
 public:
     static response RESPONSE_200;
     static response RESPONSE_404;
 
-    response();
+    void set_status(Status_code code);
+
+    Status_code get_status();
 
     char *to_string();
 
     size_t get_length();
 
+    void set_body(char *body, int body_length);
+
+    void set_http_version(std::string http_version);
+
+    std::string get_http_version();
+
 private:
     static const char CARRIAGE_RETURN = '\r';
     static const char NEW_LINE = '\n';
+
+    Status_code status_code;
+    char *response_body;
+    int body_length;
+    std::string http_version;
 };
 
 
