@@ -1,6 +1,3 @@
-//
-// Created by salma on 11/8/18.
-//
 //TODO in properties file. define HTTP_VERSION 1.0
 #include <request.h>
 #include <file_reader.h>

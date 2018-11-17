@@ -47,8 +47,8 @@ void *handle_request(void *arguments) {
         default:
             exit(EXIT_FAILURE);
     }
-    int test = send(socket_no, res->to_string(), res->get_length(), 0);
-    std::cout << test << std::endl;
+    std::cout << res->to_string().c_str() << std::endl;
+    int test = send(socket_no, res->to_string().c_str(), res->get_length(), 0);
 }
 
 response *handle_get_request(request *request_to_process) {

@@ -3,24 +3,28 @@
 //
 
 #include <cstring>
+#include <iostream>
 #include "response.h"
 
-char *response::to_string() {
+std::string response::to_string() {
     std::string response_line_1 = "HTTP/" + http_version + " " + get_status_string() + "\r\n";
     std::string response_line_2 = "Content-Length: " + std::to_string(body_length) + "\r\n";
     std::string response_line_3 = "Content-Type: " + content_type;
     std::string response_line_4 = "\r\n";
     std::string response_line_5 = response_body;
-    return const_cast<char *>((response_line_1 + response_line_2 + response_line_3 + response_line_4 +
-                               response_line_5).c_str());
+
+    std::string response_string =
+            response_line_1 + response_line_2 + response_line_3 + response_line_4 + response_line_5;
+    response_length = response_string.length();
+    return response_string;
 }
 
 void response::build(std::string res_msg) {
     // TODO: implement parsing
 }
 
-size_t response::get_length() {
-    return strlen(to_string());
+int response::get_length() {
+    return response_length;
 }
 
 Status_code response::get_status() {
