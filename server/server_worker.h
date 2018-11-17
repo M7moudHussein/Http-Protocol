@@ -21,6 +21,7 @@ private:
     request *request_to_process;
     int socket_no;
     file_writer writer;
+    response *handle_post_request(request *request_to_process);
 };
 
 #endif //HTTP_PROTOCOL_SERVER_WORKER_H

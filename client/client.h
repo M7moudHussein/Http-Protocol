@@ -23,7 +23,7 @@ public:
 
     void handle_get_response(request *, response *);
 
-    void handle_post_request();
+    void handle_post_request(request *);
 
 
 private:

@@ -20,7 +20,6 @@ void *handle_request(void *sender);
 
 response *handle_get_request(request *request_to_process);
 
-response *handle_post_request(request *request_to_process);
 
 server_worker::server_worker(request *request_to_process, int socket_no) {
     this->request_to_process = request_to_process;
@@ -31,6 +30,7 @@ void server_worker::process_request() {
     thread_args *args = new thread_args(socket_no, request_to_process);
     int rc = pthread_create(new pthread_t, NULL, handle_request, args);
 }
+
 
 void *handle_request(void *arguments) {
     thread_args *args = (thread_args *) arguments;
@@ -91,12 +91,17 @@ response *handle_get_request(request *request_to_process) {
     }
 }
 
-response *handle_post_request(request *request_to_process){
+response *server_worker::handle_post_request(request *request_to_process){
     /*1. send OK response before client can upload file to server*/
     response *res = new response();
     res->set_http_version(request_to_process->get_http_version());
     res->set_status(CODE_200);
     /*2. save the uploaded file by the client to the server directory*/
-    //writer.write(request_to_process->get_path().c_str(), req->get_body(), req->get_body_length());
+    char * file_data;
+    int bytes_read = recv(socket_no,file_data,request_to_process->get_length(),0);
+    if(bytes_read >= 0)
+        writer.write(request_to_process->get_path().c_str(), file_data, bytes_read);
+    else
+        //TODO ERROR in receiving post data
     return res;
 }

@@ -33,6 +33,8 @@ public:
 
     int get_port_num();
 
+    int get_length();
+
     std::string get_host_name();
 
     std::string format();
@@ -47,6 +49,8 @@ private:
     std::string host;
     int port_number;
     std::string http_version;
+    int post_content_len;
+    std::string post_content_type;
 };
 
 

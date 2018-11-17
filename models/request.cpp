@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <file_reader.h>
 #include "request.h"
 
 request::request(request_type r_type, std::string file_name, std::string host_name, int port_num) {
@@ -46,6 +47,10 @@ std::string request::format() {
     std::string req = "";
     req += ((type == GET) ? "GET" : "POST") + file + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
     req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
+    if (type == POST) {
+        req += "Content-Length: " + std::to_string(post_content_len) + CARRIAGE_RET + LINE_FEED;
+        req += "Content-Type: " + post_content_type + CARRIAGE_RET + LINE_FEED;
+    }
     req += CARRIAGE_RET;
     req += LINE_FEED;
     //TODO add "KEEP ALIVE"
@@ -73,4 +78,37 @@ void request::build(std::string req_msg) {
     request::type = request_type == "POST" ? POST : GET;
     request::file = path;
     request::http_version = protocol_version.substr(protocol_version.find('/') + 1);
+    //get file length for post request and get content type
+    if (type == POST) {
+        FILE *p_file = NULL;
+        p_file = fopen(path.c_str(), "rb");
+        fseek(p_file, 0, SEEK_END);
+        post_content_len = ftell(p_file);
+        fclose(p_file);
+
+        if (post_content_len == -1) {
+            //TODO send 404 from server side
+        } else {
+            std::string extension;
+            for (int i = path.length() - 1; i >= 0; i--) {
+                if (path[i] == '.') {
+                    extension = path.substr(i + 1);
+                }
+            }
+
+            if (extension == "txt") {
+                post_content_type = "text/plain";
+            } else if (extension == "html") {
+                post_content_type = "text/html";
+            } else {
+                post_content_type = "image" + std::string("/") + extension;
+            }
+        }
+    }
+
 }
+
+int request::get_length() {
+    return request::post_content_len;
+}
+

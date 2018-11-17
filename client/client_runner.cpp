@@ -25,7 +25,7 @@ int main(int argc, char const *argv[]) {
                         if (req->get_type() == GET)
                             client.handle_get_response(req, res);
                         else
-                            client.handle_post_request();
+                            client.handle_post_request(req);
                     } else {
                         // TODO HANDLE 'NOT FOUND' ERROR
                     }
