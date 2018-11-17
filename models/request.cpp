@@ -49,30 +49,28 @@ std::string request::format() {
     req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
     if (type == POST) {
         //get file length for post request and get content type
-        if (type == POST) {
-            FILE *p_file = NULL;
-            p_file = fopen(file.c_str(), "rb");
-            fseek(p_file, 0, SEEK_END);
-            post_content_len = ftell(p_file);
-            fclose(p_file);
+        FILE *p_file = NULL;
+        p_file = fopen(file.c_str(), "rb");
+        fseek(p_file, 0, SEEK_END);
+        post_content_len = ftell(p_file);
+        fclose(p_file);
 
-            if (post_content_len == -1) {
-                //TODO send 404 from server side
+        if (post_content_len == -1) {
+            //TODO send 404 from server side
+        } else {
+            std::string extension;
+            for (int i = file.length() - 1; i >= 0; i--) {
+                if (file[i] == '.') {
+                    extension = file.substr(i + 1);
+                }
+            }
+
+            if (extension == "txt") {
+                post_content_type = "text/plain";
+            } else if (extension == "html") {
+                post_content_type = "text/html";
             } else {
-                std::string extension;
-                for (int i = file.length() - 1; i >= 0; i--) {
-                    if (file[i] == '.') {
-                        extension = file.substr(i + 1);
-                    }
-                }
-
-                if (extension == "txt") {
-                    post_content_type = "text/plain";
-                } else if (extension == "html") {
-                    post_content_type = "text/html";
-                } else {
-                    post_content_type = "image" + std::string("/") + extension;
-                }
+                post_content_type = "image" + std::string("/") + extension;
             }
         }
         req += "Content-Length: " + std::to_string(post_content_len) + CARRIAGE_RET + LINE_FEED;
@@ -90,7 +88,7 @@ std::string request::get_http_version() {
 
 void request::build(std::string req_msg) {
     std::stringstream stream, first_line, second_line, third_line;
-    std::string temp_buffer,post_content_len_line, post_content_line;
+    std::string temp_buffer, post_content_len_line, post_content_line;
     stream << req_msg;
 
     getline(stream, temp_buffer);
@@ -106,9 +104,9 @@ void request::build(std::string req_msg) {
     request::file = path;
     request::http_version = protocol_version.substr(protocol_version.find('/') + 1);
 
-    if(type == POST){
+    if (type == POST) {
         second_line << temp_buffer;
-        getline(stream,temp_buffer);
+        getline(stream, temp_buffer);
         second_line >> post_content_len_line;
         request::post_content_len = stoi(post_content_len_line.substr(post_content_len_line.find(":") + 1));
         third_line << temp_buffer;
