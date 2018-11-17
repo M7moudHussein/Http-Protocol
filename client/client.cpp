@@ -39,7 +39,7 @@ bool client::establish_connection(int server_port) {
 }
 
 void client::handle_get_response(request *req, response *res) {
-    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
+//    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
 }
 
 void client::handle_post_request() {

@@ -9,7 +9,7 @@
 std::string response::to_string() {
     std::string response_line_1 = "HTTP/" + http_version + " " + get_status_string() + "\r\n";
     std::string response_line_2 = "Content-Length: " + std::to_string(body_length) + "\r\n";
-    std::string response_line_3 = "Content-Type: " + content_type;
+    std::string response_line_3 = "Content-Type: " + content_type + "\r\n";
     std::string response_line_4 = "\r\n";
     std::string response_line_5 = response_body;
 

@@ -31,11 +31,9 @@ public:
 
     void set_host_name(std::string host_name);
 
-    std::string get_host_name();
-
-    void set_port_num(int port_num);
-
     int get_port_num();
+
+    std::string get_host_name();
 
     std::string format();
 
