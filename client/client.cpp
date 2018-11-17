@@ -43,7 +43,7 @@ bool client::establish_connection(int server_port) {
 }
 
 void client::handle_get_response(request *req, response *res) {
-//    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
+   writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
 }
 
 void client::handle_post_request(request *req) {
@@ -57,7 +57,6 @@ void client::handle_post_request(request *req) {
 
 int client::send_request(request *req) {
     std::string req_msg = req->format();
-    std::cout<<"msg"<<req_msg<<"\n";
     return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
 }
 

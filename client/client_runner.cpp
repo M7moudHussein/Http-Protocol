@@ -21,6 +21,7 @@ int main(int argc, char const *argv[]) {
                 char *res_msg;
                 if (recv(client.get_socket_fd(), res_msg, MAX_BUFFER_SIZE, 0) >= 0) {
                     response *res = new response();
+
                     res->build(res_msg);
                     if (res->get_status() == status_code::CODE_200) {
                         if (req->get_type() == GET)

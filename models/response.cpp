@@ -26,7 +26,7 @@ std::string response::format() {
 void response::build(std::string res_msg) {
     std::stringstream stream, first_line;
     std::string temp_buffer;
-
+    stream << res_msg;
     getline(stream, temp_buffer);
     first_line << temp_buffer;
 
@@ -50,9 +50,9 @@ void response::build(std::string res_msg) {
         std::string content_type;
         third_line >> temp_buffer >> content_type;
 
+        getline(stream, temp_buffer);
         getline(stream, temp_buffer); // skip empty line between header and body
         std::string response_body = temp_buffer;
-
         this->content_type = content_type;
         this->response_body = response_body;
     }

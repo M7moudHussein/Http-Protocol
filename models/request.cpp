@@ -9,7 +9,7 @@
 
 request::request(request_type r_type, std::string file_name, std::string host_name, int port_num) {
     type = r_type;
-    file = file_name;
+    file = file_name.substr(1);
     host = host_name;
     port_number = port_num;
 }
@@ -45,7 +45,6 @@ void request::set_host_name(std::string host_name) {
 }
 
 std::string request::format() {
-    std::cout << "format\n";
     std::string req = "";
     req += ((type == GET) ? "GET" : "POST");
     req +=' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
@@ -101,7 +100,6 @@ void request::build(std::string req_msg) {
 
     std::string request_type, path, protocol_version;
     first_line >> request_type >> path >> protocol_version;
-    path = path.substr(1);
 
     request::type = request_type == "POST" ? POST : GET;
     request::file = path;
