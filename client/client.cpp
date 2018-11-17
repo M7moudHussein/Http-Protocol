@@ -43,7 +43,7 @@ void client::handle_get_response(request *req, response *res) {
 }
 
 void client::handle_post_request() {
-//TODO implement sending file for server on post request
+
 }
 
 int client::send_request(request *req) {

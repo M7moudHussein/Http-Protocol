@@ -37,10 +37,11 @@ std::queue<request *> file_reader::parse_requests(std::string request_file) {
     return requests;
 }
 
+// TODO: send data in chunks
 int file_reader::read_file(std::string file_path, char **buffer) {
     int read_bytes;
     FILE *fp;
-    fp = fopen(file_path.c_str(), "rb");
+    fp = fopen(file_path.c_str(), "r");
     if (fp == nullptr) {
         return -1;
     }
@@ -48,7 +49,7 @@ int file_reader::read_file(std::string file_path, char **buffer) {
     read_bytes = ftell(fp);
     rewind(fp);
     *buffer = (char *) malloc((read_bytes + 1) * sizeof(char));
-    fread((char *) file_path.c_str(), read_bytes, 1, fp);
+    fread(*buffer, sizeof(char), read_bytes, fp);
     return read_bytes;
 }
 
