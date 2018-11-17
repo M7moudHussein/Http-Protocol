@@ -97,5 +97,6 @@ response *handle_post_request(request *request_to_process){
     res->set_http_version(request_to_process->get_http_version());
     res->set_status(CODE_200);
     /*2. save the uploaded file by the client to the server directory*/
+    //writer.write(request_to_process->get_path().c_str(), req->get_body(), req->get_body_length());
     return res;
 }
