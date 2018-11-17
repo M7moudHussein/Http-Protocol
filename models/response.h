@@ -18,11 +18,11 @@ public:
 
     std::string get_status_string();
 
-    char *to_string();
+    std::string to_string();
 
     void build(std::string res_msg);
 
-    size_t get_length();
+    int get_length();
 
     void set_body(char *body, int body_length);
 
@@ -40,7 +40,7 @@ private:
     static const char CARRIAGE_RETURN = '\r';
     static const char NEW_LINE = '\n';
 
-
+    int response_length;
     Status_code status_code;
     char *response_body;
     int body_length;

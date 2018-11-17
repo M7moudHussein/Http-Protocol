@@ -31,11 +31,11 @@ public:
 
     void set_host_name(std::string host_name);
 
-    std::string get_host_name();
-
-    void set_port_num(int port_num);
-
     int get_port_num();
+
+    int get_length();
+
+    std::string get_host_name();
 
     std::string format();
 
@@ -49,6 +49,8 @@ private:
     std::string host;
     int port_number;
     std::string http_version;
+    int post_content_len;
+    std::string post_content_type;
 };
 
 

@@ -1,3 +1,8 @@
+/
+// Created by salma on 11/3/18.
+//
+
+#include <file_reader.h>
 #include "client.h"
 
 client::client(std::string server_ip) {
@@ -35,11 +40,16 @@ bool client::establish_connection(int server_port) {
 }
 
 void client::handle_get_response(request *req, response *res) {
-    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
+//    writer.write(req->get_path().c_str(), res->get_body(), res->get_body_length());
 }
 
-void client::handle_post_request() {
-
+void client::handle_post_request(request *req) {
+    char *file_data;
+    file_reader reader;
+    reader.read_file(req->get_path(), &file_data);
+    //send post uploaded file through the socket to server
+    //TODO handle chunks
+    send(sock_fd, file_data, strlen(file_data),0);
 }
 
 int client::send_request(request *req) {

@@ -1,6 +1,3 @@
-//
-// Created by salma on 11/8/18.
-//
 //TODO in properties file. define HTTP_VERSION 1.0
 #include <request.h>
 #include <file_reader.h>
@@ -28,7 +25,7 @@ int main(int argc, char const *argv[]) {
                         if (req->get_type() == GET)
                             client.handle_get_response(req, res);
                         else
-                            client.handle_post_request();
+                            client.handle_post_request(req);
                     } else {
                         // TODO HANDLE 'NOT FOUND' ERROR
                     }
