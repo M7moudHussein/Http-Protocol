@@ -57,6 +57,7 @@ void client::handle_post_request(request *req) {
 
 int client::send_request(request *req) {
     std::string req_msg = req->format();
+    std::cout<<"msg"<<req_msg<<"\n";
     return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
 }
 

@@ -47,10 +47,10 @@ void request::set_host_name(std::string host_name) {
 std::string request::format() {
     std::cout << "format\n";
     std::string req = "";
-    req += ((type == GET) ? "GET" : "POST") + ' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
+    req += ((type == GET) ? "GET" : "POST");
+    req +=' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
     req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
     if (type == POST) {
-        std::cout << "request = post\n";
         //get file length for post request and get content type
         FILE *p_file = NULL;
         p_file = fopen(file.c_str(), "rb");
@@ -60,13 +60,11 @@ std::string request::format() {
         if (post_content_len == -1) {
             //TODO send 404 from server side
         } else {
-            std::cout << "calculating length\n";
             std::string extension;
             for (int i = file.length() - 1; i >= 0; i--) {
                 std::cout << i << "\n";
                 if (file[i] == '.') {
                     extension = file.substr(i + 1);
-                    std::cout << "extension detected\n";
                 }
             }
 

@@ -18,7 +18,8 @@ void server_dispatcher::run_server(int port_no) {
     int server_fd = server_dispatcher::init_server(&address);
 
     while (true) {
-        if (listen(server_fd, 1) < 0) {
+        std::cout<<server_fd<<"\n";
+        if (listen(server_fd, 10) < 0) {
             perror("listen");
             exit(EXIT_FAILURE);
         }
