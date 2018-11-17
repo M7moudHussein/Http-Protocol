@@ -1,6 +1,7 @@
 //TODO in properties file. define HTTP_VERSION 1.0
 #include <request.h>
 #include <file_reader.h>
+#include <iostream>
 #include "queue"
 #include "client.h"
 
@@ -35,7 +36,7 @@ int main(int argc, char const *argv[]) {
             } else {
                 // TODO HANDLE SENDING ERRORS
             }
-            client.close_connection();
+            //client.close_connection();
         } else {
             // TODO HANDLE ERRORS
         }

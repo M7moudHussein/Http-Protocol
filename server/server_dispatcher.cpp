@@ -22,6 +22,7 @@ void server_dispatcher::run_server(int port_no) {
             perror("listen");
             exit(EXIT_FAILURE);
         }
+        std::cout<<port_no<<"\n";
 
         int socket_no = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address_len);
         if (socket_no < 0) {

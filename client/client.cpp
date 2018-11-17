@@ -2,7 +2,9 @@
 //
 
 #include <file_reader.h>
+#include <iostream>
 #include "client.h"
+#include <errno.h>
 
 client::client(std::string server_ip) {
     client::server_ip = server_ip;
@@ -16,7 +18,7 @@ bool client::establish_connection(int server_port) {
     struct sockaddr_in server_addr;
     // Create socket
     if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("Socket creation error \n");
+        printf("Client: Socket creation error \n");
         return false;
     }
 
@@ -29,9 +31,11 @@ bool client::establish_connection(int server_port) {
         printf("Invalid address/ Address not supported \n");
         return false;
     }
+    std::cout<<server_port<<"\n";
     // Connect to server
     if (connect(sock_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
-        printf("Connection Failed \n");
+        std::cout << strerror(errno) << "\n";
+        printf("Client: Connection Failed \n");
         return false;
     }
 
