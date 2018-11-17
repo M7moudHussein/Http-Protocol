@@ -52,4 +52,3 @@ int file_reader::read_file(std::string file_path, char **buffer) {
     fread(*buffer, sizeof(char), read_bytes, fp);
     return read_bytes;
 }
-

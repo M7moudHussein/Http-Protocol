@@ -1,7 +1,3 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #include "client.h"
 
 client::client(std::string server_ip) {
@@ -14,7 +10,7 @@ int client::get_socket_fd() {
 
 bool client::establish_connection(int server_port) {
     struct sockaddr_in server_addr;
-    //create socket
+    // Create socket
     if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("Socket creation error \n");
         return false;
@@ -29,7 +25,7 @@ bool client::establish_connection(int server_port) {
         printf("Invalid address/ Address not supported \n");
         return false;
     }
-    //connect to server
+    // Connect to server
     if (connect(sock_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
         printf("Connection Failed \n");
         return false;
