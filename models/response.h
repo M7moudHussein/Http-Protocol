@@ -3,30 +3,31 @@
 
 
 #include <string>
+#include "request.h"
 //#include <magic.h>
 
-enum Status_code {
+enum status_code {
     CODE_404,
     CODE_200
 };
 
 class response {
 public:
-    void set_status(Status_code code);
+    void set_status(status_code code);
 
-    Status_code get_status();
+    status_code get_status();
 
     std::string get_status_string();
 
-    std::string to_string();
+    std::string format();
 
     void build(std::string res_msg);
 
     int get_length();
 
-    void set_body(char *body, int body_length);
+    void set_body(std::string body);
 
-    char *get_body();
+    std::string get_body();
 
     int get_body_length();
 
@@ -36,14 +37,16 @@ public:
 
     void set_content_type(const char *string);
 
+    void set_request_type(request_type req_type);
+
 private:
     static const char CARRIAGE_RETURN = '\r';
     static const char NEW_LINE = '\n';
 
+    request_type req_type;
     int response_length;
-    Status_code status_code;
-    char *response_body;
-    int body_length;
+    status_code response_status_code;
+    std::string response_body;
     std::string http_version;
     std::string content_type;
 };

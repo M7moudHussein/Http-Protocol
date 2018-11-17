@@ -43,12 +43,12 @@ void client::handle_get_response(request *req, response *res) {
 }
 
 void client::handle_post_request(request *req) {
-    char *file_data;
+    std::string file_data;
     file_reader reader;
     reader.read_file(req->get_path(), &file_data);
     //send post uploaded file through the socket to server
     //TODO handle chunks
-    send(sock_fd, file_data, strlen(file_data),0);
+    send(sock_fd, file_data.c_str(), file_data.length(), 0);
 }
 
 int client::send_request(request *req) {
