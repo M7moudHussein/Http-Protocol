@@ -73,31 +73,8 @@ server_worker *server_dispatcher::process_request(int socket_no) {
 }
 
 request *server_dispatcher::parse_request(char *buffer) {
-    std::stringstream ss, first_line, second_line;
-    std::string temp_buffer;
-    std::cout << buffer << std::endl;
-    ss << buffer;
-
-    getline(ss, temp_buffer);
-    first_line << temp_buffer;
-
-    getline(ss, temp_buffer);
-    second_line << temp_buffer;
-
-    std::string request_type, path, protocol_version;
-    first_line >> request_type >> path >> protocol_version;
-
-    std::string host_name, port_number;
-    second_line >> temp_buffer >> temp_buffer;
-
-    unsigned long colon_index = temp_buffer.find(':');
-    host_name = temp_buffer.substr(0, colon_index + 1);
-    port_number = temp_buffer.substr(colon_index + 1);
-
     request *req = new request();
-    req->set_type(request_type == "POST" ? POST : GET);
-    req->set_path(path);
-    req->set_host_name(host_name);
-    req->set_port_num(stoi(port_number));
+    std::string request_msg = std::string(buffer);
+    req->build(request_msg);
     return req;
 }
