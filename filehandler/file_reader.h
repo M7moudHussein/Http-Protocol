@@ -17,7 +17,7 @@ public:
     std::queue<request *> parse_requests(std::string request_file);
 
     /** Reads the file into the buffer and returns the number of bytes read*/
-    int read_file(std::string file_path, char **buffer);
+    int read_file(std::string file_path, std::string *buffer);
 };
 
 
