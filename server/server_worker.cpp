@@ -15,11 +15,13 @@ struct thread_args {
         this->request_to_process = request_to_process;
     }
 };
+file_writer writer;
 
 void *handle_request(void *sender);
 
 response *handle_get_request(request *request_to_process);
 
+response *handle_post_request(request *request_to_process, int socket_no);
 
 server_worker::server_worker(request *request_to_process, int socket_no) {
     this->request_to_process = request_to_process;
@@ -39,7 +41,7 @@ void *handle_request(void *arguments) {
     response *res;
     switch (request_to_process->get_type()) {
         case POST:
-            res = handle_post_request(request_to_process);
+            res = handle_post_request(request_to_process,socket_no);
             break;
         case GET:
             res = handle_get_request(request_to_process);
@@ -91,7 +93,7 @@ response *handle_get_request(request *request_to_process) {
     }
 }
 
-response *server_worker::handle_post_request(request *request_to_process){
+response * handle_post_request(request *request_to_process,int socket_no){
     /*1. send OK response before client can upload file to server*/
     response *res = new response();
     res->set_http_version(request_to_process->get_http_version());

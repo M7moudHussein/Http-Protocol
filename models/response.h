@@ -3,7 +3,7 @@
 
 
 #include <string>
-#include <magic.h>
+//#include <magic.h>
 
 enum Status_code {
     CODE_404,
