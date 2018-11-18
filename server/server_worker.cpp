@@ -40,18 +40,23 @@ void *handle_request(void *arguments) {
     request *request_to_process = args->request_to_process;
     int socket_no = args->socket_no;
     response res;
-    switch (request_to_process->get_type()) {
-        case POST:
-            res = handle_post_request(request_to_process, socket_no);
-            break;
-        case GET:
-            res = handle_get_request(request_to_process);
-            break;
-        default:
-            exit(EXIT_FAILURE);
+    if (request_to_process->get_type() == POST) {
+        res = handle_post_request(request_to_process, socket_no);
+    } else {
+        res = handle_get_request(request_to_process);
     }
     std::cout << res.format().c_str() << std::endl;
     send(socket_no, res.format().c_str(), res.get_length(), 0);
+
+    if (request_to_process->get_type() == POST) {
+        char *file_data = new char[request_to_process->get_length()];
+        int bytes_read = recv(socket_no, file_data, request_to_process->get_length(), 0);
+        if (bytes_read >= 0)
+            writer.write(request_to_process->get_path().c_str(), file_data, bytes_read);
+//    else{}
+        delete file_data;
+        //TODO ERROR in receiving post data
+    }
 }
 
 response handle_get_request(request *request_to_process) {
@@ -96,16 +101,8 @@ response handle_get_request(request *request_to_process) {
 }
 
 response handle_post_request(request *request_to_process, int socket_no) {
-    /*1. send OK response before client can upload file to server*/
     response res;
     res.set_http_version(request_to_process->get_http_version());
     res.set_status(CODE_200);
-    /*2. save the uploaded file by the client to the server directory*/
-    char *file_data;
-    int bytes_read = recv(socket_no, file_data, request_to_process->get_length(), 0);
-    if (bytes_read >= 0)
-        writer.write(request_to_process->get_path().c_str(), file_data, bytes_read);
-    else
-        //TODO ERROR in receiving post data
-        return res;
+    return res;
 }

@@ -18,12 +18,10 @@ void server_dispatcher::run_server(int port_no) {
     int server_fd = server_dispatcher::init_server(&address);
 
     while (true) {
-        std::cout<<server_fd<<"\n";
         if (listen(server_fd, 10) < 0) {
             perror("listen");
             exit(EXIT_FAILURE);
         }
-        std::cout<<port_no<<"\n";
 
         int socket_no = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address_len);
         if (socket_no < 0) {
@@ -67,7 +65,6 @@ server_worker *server_dispatcher::process_request(int socket_no) {
         request *req = server_dispatcher::parse_request(buffer);
         delete[] buffer;
         server_worker *worker = new server_worker(req, socket_no);
-        delete req;
         return worker;
     }
     //TODO Add else

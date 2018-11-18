@@ -47,7 +47,7 @@ void request::set_host_name(std::string host_name) {
 std::string request::format() {
     std::string req = "";
     req += ((type == GET) ? "GET" : "POST");
-    req +=' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
+    req += ' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
     req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
     if (type == POST) {
         //get file length for post request and get content type
@@ -61,7 +61,6 @@ std::string request::format() {
         } else {
             std::string extension;
             for (int i = file.length() - 1; i >= 0; i--) {
-                std::cout << i << "\n";
                 if (file[i] == '.') {
                     extension = file.substr(i + 1);
                 }
@@ -89,8 +88,8 @@ std::string request::get_http_version() {
 }
 
 void request::build(std::string req_msg) {
-    std::stringstream stream, first_line, second_line, third_line;
-    std::string temp_buffer, post_content_len_line, post_content_line;
+    std::stringstream stream, first_line;
+    std::string temp_buffer;
     stream << req_msg;
 
     getline(stream, temp_buffer);
@@ -98,25 +97,19 @@ void request::build(std::string req_msg) {
 
     getline(stream, temp_buffer);
 
-    std::string request_type, path, protocol_version;
+    std::string request_type, path, protocol_version, host;
     first_line >> request_type >> path >> protocol_version;
-
     request::type = request_type == "POST" ? POST : GET;
     request::file = path;
     request::http_version = protocol_version.substr(protocol_version.find('/') + 1);
+    request::host = temp_buffer.substr(temp_buffer.find(":") + 2);
 
     if (type == POST) {
-        second_line << temp_buffer;
         getline(stream, temp_buffer);
-        second_line >> post_content_len_line;
-        std::cout<<post_content_len_line<<"\n";
-        request::post_content_len = stoi(post_content_len_line.substr(post_content_len_line.find(":") + 1));
-        third_line << temp_buffer;
-        third_line >> post_content_line;
-        std::cout<<post_content_line<<"\n";
-        request::post_content_type = post_content_line.substr(post_content_line.find(":") + 1);
+        request::post_content_len = stoi(temp_buffer.substr(temp_buffer.find(":") + 2));
+        getline(stream, temp_buffer);
+        request::post_content_type = temp_buffer.substr(temp_buffer.find(":") + 2);
     }
-
 }
 
 int request::get_length() {
