@@ -5,7 +5,10 @@
 
 class file_writer {
 public:
-    void write(const char *file_name, std::string buffer, int buffer_size);
+    void write(std::string url, std::string buffer);
+
+private:
+    std::string get_absolute_url(std::string url);
 };
 
 #endif

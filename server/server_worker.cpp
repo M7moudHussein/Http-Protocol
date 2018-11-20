@@ -48,7 +48,9 @@ void *handle_request(void *arguments) {
     std::cout << response_message << std::endl;
     send(socket_no, response_message.c_str(), response_message.length(), 0);
 
-    handle_post_followers(request_to_process, socket_no);
+    if (request_to_process->get_method() == POST) {
+        handle_post_followers(request_to_process, socket_no);
+    }
 }
 
 response handle_get_request(request *request_to_process) {
@@ -62,6 +64,7 @@ response handle_get_request(request *request_to_process) {
 
     if (data_length == -1) {
         res.set_status(CODE_404);
+        res.set_content_length(0);
     } else {
         res.set_status(CODE_200);
         res.set_body(file_data);
@@ -80,15 +83,14 @@ response handle_post_request(request *request_to_process) {
 }
 
 void handle_post_followers(request *request_to_process, int socket_no) {
-    if (request_to_process->get_method() == POST) {
-        char *file_data = new char[request_to_process->get_body_length()];
-        int bytes_read = recv(socket_no, file_data, request_to_process->get_body_length(), 0);
-        if (bytes_read >= 0) {
-            file_writer writer;
-            writer.write(request_to_process->get_url().c_str(), file_data, bytes_read);
-        }
-//    else{}
-        delete file_data;
-        //TODO ERROR in receiving post data
+    char *file_data = new char[request_to_process->get_body_length()];
+    int bytes_read = recv(socket_no, file_data, request_to_process->get_body_length(), 0);
+    if (bytes_read >= 0) {
+        file_writer writer;
+        writer.write(request_to_process->get_url().c_str(), file_data);
     }
+//    else{}
+    delete file_data;
+    //TODO ERROR in receiving post data
+    delete[] file_data;
 }

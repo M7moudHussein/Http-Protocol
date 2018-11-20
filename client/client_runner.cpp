@@ -17,16 +17,15 @@ int main(int argc, char const *argv[]) {
             if (client.send_request(req) >= 0) {
                 char *response_buffer = new char[MAX_BUFFER_SIZE];
                 ssize_t read_data_length = recv(client.get_socket_fd(), response_buffer, MAX_BUFFER_SIZE, 0);
-                std::cout << response_buffer << std::endl;
                 if (read_data_length >= 0) {
                     response *res = new response();
                     res->build(std::string(response_buffer));
-
                     if (res->get_status() == response_status_code::CODE_200) {
-                        if (req->get_method() == GET)
+                        if (req->get_method() == GET) {
                             client.handle_get_response(req, res);
-                        else
+                        } else {
                             client.handle_post_request(req);
+                        }
                     } else {
                         // TODO HANDLE 'NOT FOUND' ERROR
                     }
