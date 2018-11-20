@@ -60,10 +60,10 @@ int server_dispatcher::init_server(struct sockaddr_in *address) {
 
 server_worker *server_dispatcher::process_request(int socket_no) {
     char *buffer = new char[REQUEST_BUFFER_SIZE];
-    ssize_t data_len = read(socket_no, buffer, REQUEST_BUFFER_SIZE);
+    int data_len = read(socket_no, buffer, REQUEST_BUFFER_SIZE);
     if (data_len > -1) {
         request req;
-        req.build(buffer);
+        req.build(std::string(buffer, data_len));
         delete[] buffer;
         server_worker *worker = new server_worker(req, socket_no);
         return worker;

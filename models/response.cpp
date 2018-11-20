@@ -53,10 +53,6 @@ std::string response::get_body() {
     return body;
 }
 
-int response::get_body_length() {
-    return body.length();
-}
-
 void response::set_http_version(std::string http_version) {
     this->http_version = http_version;
 }

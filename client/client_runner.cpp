@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
                 ssize_t read_data_length = recv(client.get_socket_fd(), response_buffer, MAX_BUFFER_SIZE, 0);
                 if (read_data_length >= 0) {
                     response *res = new response();
-                    res->build(std::string(response_buffer));
+                    res->build(std::string(response_buffer, read_data_length));
                     if (res->get_status() == response_status_code::CODE_200) {
                         if (req->get_method() == GET) {
                             client.handle_get_response(req, res);

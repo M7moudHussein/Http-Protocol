@@ -83,14 +83,17 @@ response handle_post_request(request *request_to_process) {
 }
 
 void handle_post_followers(request *request_to_process, int socket_no) {
-    char *file_data = new char[request_to_process->get_body_length()];
-    int bytes_read = recv(socket_no, file_data, request_to_process->get_body_length(), 0);
-    if (bytes_read >= 0) {
+    char *file_data = new char[request_to_process->get_content_length()];
+    int total_read = 0;
+    while (total_read < request_to_process->get_content_length()) {
+        int bytes_read = recv(socket_no, file_data, request_to_process->get_content_length(), 0);
+        if (bytes_read == -1) {
+            perror("Error while receiving data");
+            break;
+        }
+        total_read += bytes_read;
         file_writer writer;
-        writer.write(request_to_process->get_url().c_str(), file_data);
+        writer.write(request_to_process->get_url().c_str(), std::string(file_data, bytes_read));
     }
-//    else{}
-    delete file_data;
-    //TODO ERROR in receiving post data
     delete[] file_data;
 }

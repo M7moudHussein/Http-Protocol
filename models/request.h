@@ -17,7 +17,7 @@ public:
 
     int get_port_num();
 
-    long get_body_length();
+    long get_content_length();
 
     std::string build_request_message();
 
