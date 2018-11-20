@@ -1,29 +1,21 @@
 #ifndef HTTP_PROTOCOL_RESPONSE_H
 #define HTTP_PROTOCOL_RESPONSE_H
 
-
 #include <string>
-#include "request.h"
-//#include <magic.h>
-
-enum status_code {
-    CODE_404,
-    CODE_200
-};
+#include <map>
+#include "http_utils.h"
 
 class response {
 public:
-    void set_status(status_code code);
+    void set_status(response_status_code code);
 
-    status_code get_status();
+    response_status_code get_status();
 
     std::string get_status_string();
 
-    std::string format();
+    std::string build_response_message();
 
     void build(std::string res_msg);
-
-    int get_length();
 
     void set_body(std::string body);
 
@@ -33,22 +25,15 @@ public:
 
     void set_http_version(std::string http_version);
 
-    std::string get_http_version();
+    void set_content_type(std::string content_type);
 
-    void set_content_type(const char *string);
-
-    void set_request_type(request_type req_type);
+    void set_content_length(int content_length);
 
 private:
-    static const char CARRIAGE_RETURN = '\r';
-    static const char NEW_LINE = '\n';
-
-    request_type req_type;
-    int response_length;
-    status_code response_status_code;
-    std::string response_body;
+    response_status_code status_code;
+    std::map<std::string, std::string> header_fields;
+    std::string body;
     std::string http_version;
-    std::string content_type;
 };
 
 

@@ -1,7 +1,4 @@
-//
-// Created by salma on 11/3/18.
-//
-
+#include <utility>
 #include <iostream>
 #include <file_reader.h>
 #include "server_worker.h"
@@ -16,21 +13,21 @@ struct thread_args {
     }
 };
 
-file_writer writer;
-
-void *handle_request(void *sender);
+void *handle_request(void *thread_arguments);
 
 response handle_get_request(request *request_to_process);
 
-response handle_post_request(request *request_to_process, int socket_no);
+response handle_post_request(request *request_to_process);
 
-server_worker::server_worker(request *request_to_process, int socket_no) {
-    this->request_to_process = request_to_process;
+void handle_post_followers(request *request_to_process, int socket_no);
+
+server_worker::server_worker(request request_to_process, int socket_no) {
+    this->request_to_process = std::move(request_to_process);
     this->socket_no = socket_no;
 }
 
 void server_worker::process_request() {
-    thread_args *args = new thread_args(socket_no, request_to_process);
+    thread_args *args = new thread_args(socket_no, &request_to_process);
     int rc = pthread_create(new pthread_t, NULL, handle_request, args);
 }
 
@@ -39,70 +36,59 @@ void *handle_request(void *arguments) {
     thread_args *args = (thread_args *) arguments;
     request *request_to_process = args->request_to_process;
     int socket_no = args->socket_no;
+
     response res;
-    if (request_to_process->get_type() == POST) {
-        res = handle_post_request(request_to_process, socket_no);
+    if (request_to_process->get_method() == POST) {
+        res = handle_post_request(request_to_process);
     } else {
         res = handle_get_request(request_to_process);
     }
-    std::cout << res.format().c_str() << std::endl;
-    send(socket_no, res.format().c_str(), res.get_length(), 0);
 
-    if (request_to_process->get_type() == POST) {
-        char *file_data = new char[request_to_process->get_length()];
-        int bytes_read = recv(socket_no, file_data, request_to_process->get_length(), 0);
-        if (bytes_read >= 0)
-            writer.write(request_to_process->get_path().c_str(), file_data, bytes_read);
-//    else{}
-        delete file_data;
-        //TODO ERROR in receiving post data
-    }
+    std::string response_message = res.build_response_message();
+    std::cout << response_message << std::endl;
+    send(socket_no, response_message.c_str(), response_message.length(), 0);
+
+    handle_post_followers(request_to_process, socket_no);
 }
 
 response handle_get_request(request *request_to_process) {
     std::string file_data;
     int data_length;
     file_reader reader;
-    data_length = reader.read_file(request_to_process->get_path(), &file_data);
+    data_length = reader.read_file(request_to_process->get_url(), &file_data);
+
     response res;
-    res.set_request_type(request_to_process->get_type());
     res.set_http_version(request_to_process->get_http_version());
+
     if (data_length == -1) {
         res.set_status(CODE_404);
     } else {
         res.set_status(CODE_200);
         res.set_body(file_data);
-//        const char *mime;
-//        magic_t magic = magic_open(MAGIC_MIME_TYPE);
-//        magic_load(magic, NULL);
-//        magic_compile(magic, NULL);
-//        mime = magic_file(magic, request_to_process->get_path().c_str());
-//        magic_close(magic);
-
-        std::string extension;
-        for (int i = request_to_process->get_path().length() - 1; i >= 0; i--) {
-            if (request_to_process->get_path()[i] == '.') {
-                extension = request_to_process->get_path().substr(i + 1);
-            }
-        }
-
-        std::string content_type;
-        if (extension == "txt") {
-            content_type = "text/plain";
-        } else if (extension == "html") {
-            content_type = "text/html";
-        } else {
-            content_type = "image" + std::string("/") + extension;
-        }
-
-        res.set_content_type(content_type.c_str());
+        res.set_content_type(http_utils::get_content_type(request_to_process->get_url()));
+        res.set_content_length(reader.get_file_size(request_to_process->get_url()));
     }
     return res;
 }
 
-response handle_post_request(request *request_to_process, int socket_no) {
+response handle_post_request(request *request_to_process) {
     response res;
-    res.set_http_version(request_to_process->get_http_version());
     res.set_status(CODE_200);
+    res.set_http_version(request_to_process->get_http_version());
+    res.set_content_length(0);
     return res;
+}
+
+void handle_post_followers(request *request_to_process, int socket_no) {
+    if (request_to_process->get_method() == POST) {
+        char *file_data = new char[request_to_process->get_body_length()];
+        int bytes_read = recv(socket_no, file_data, request_to_process->get_body_length(), 0);
+        if (bytes_read >= 0) {
+            file_writer writer;
+            writer.write(request_to_process->get_url().c_str(), file_data, bytes_read);
+        }
+//    else{}
+        delete file_data;
+        //TODO ERROR in receiving post data
+    }
 }

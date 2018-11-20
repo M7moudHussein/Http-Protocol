@@ -1,56 +1,38 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #ifndef HTTP_PROTOCOL_REQUEST_H
 #define HTTP_PROTOCOL_REQUEST_H
 
 #include <string>
-
-#define CARRIAGE_RET "\r"
-#define LINE_FEED "\n"
-#define HTTP_VERSION "1.0"
-enum request_type {
-    GET,
-    POST
-};
+#include <map>
+#include "http_utils.h"
 
 class request {
 public:
-    request() {};
+    request() = default;;
 
-    request(request_type type, std::string file_name, std::string host_name, int port_num);
+    request(std::string test_request);
 
-    void set_type(request_type type);
+    request_method get_method();
 
-    request_type get_type();
-
-    void set_path(std::string file_name);
-
-    std::string get_path();
-
-    void set_host_name(std::string host_name);
+    std::string get_url();
 
     int get_port_num();
 
-    int get_length();
+    long get_body_length();
 
-    std::string get_host_name();
-
-    std::string format();
+    std::string build_request_message();
 
     std::string get_http_version();
 
     void build(std::string req_msg);
 
 private:
-    request_type type;
-    std::string file;
+    request_method method;
+    std::string url;
+    std::string http_version;
+    std::map<std::string, std::string> header_fields;
     std::string host;
     int port_number;
-    std::string http_version;
-    int post_content_len;
-    std::string post_content_type;
+    std::string body;
 };
 
 

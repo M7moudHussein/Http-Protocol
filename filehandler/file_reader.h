@@ -6,18 +6,22 @@
 #define HTTP_PROTOCOL_FILE_READER_H
 
 
-#include <queue>
+#include <vector>
 #include "string"
 #include <fstream>
-#include "../models/request.h"
 
 class file_reader {
 public:
     /** parses the requests file for the client */
-    std::queue<request *> parse_requests(std::string request_file);
+    std::vector<std::string> read_requests_file(std::string request_file);
 
     /** Reads the file into the buffer and returns the number of bytes read*/
     int read_file(std::string file_path, std::string *buffer);
+
+    int get_file_size(std::string url);
+
+private:
+    std::string get_absolute_url(std::string url);
 };
 
 

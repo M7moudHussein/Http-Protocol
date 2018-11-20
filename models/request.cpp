@@ -1,86 +1,66 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #include <sstream>
 #include <file_reader.h>
-#include <iostream>
 #include "request.h"
 
-request::request(request_type r_type, std::string file_name, std::string host_name, int port_num) {
-    type = r_type;
-    file = file_name.substr(1);
-    host = host_name;
-    port_number = port_num;
+#define DEFAULT_PORT_NUMBER 80
+#define DEFAULT_HTTP_VERSION HTTP_VERSION_1_0
+
+request::request(std::string test_request) {
+    std::vector<std::string> attributes;
+    std::stringstream line_stream(test_request);
+    std::string temp_buffer;
+
+    while (getline(line_stream, temp_buffer, ' ')) {
+        attributes.push_back(temp_buffer);
+    }
+
+    this->method = attributes[0] == "GET" ? GET : POST;
+    this->url = attributes[1];
+    this->header_fields[HOST] = attributes[2];
+    this->http_version = DEFAULT_HTTP_VERSION;
+
+    /*optional port number given*/
+    this->port_number = attributes.size() == 4 ? stoi(attributes[3]) : DEFAULT_PORT_NUMBER;
+
+    if (this->method == POST) {
+        file_reader reader;
+        int file_size = reader.get_file_size(this->url);
+        if (file_size < 0) {
+            perror("Error getting file size");
+            exit(EXIT_FAILURE);
+        }
+        this->header_fields[CONTENT_LENGTH] = std::to_string(file_size);
+        this->header_fields[CONTENT_TYPE] = http_utils::get_content_type(this->url);
+    }
 }
 
-request_type request::get_type() {
-    return type;
+request_method request::get_method() {
+    return method;
 }
 
-std::string request::get_path() {
-    return file;
+std::string request::get_url() {
+    return url;
 }
 
 int request::get_port_num() {
     return port_number;
 }
 
-std::string request::get_host_name() {
-    return host;
+long request::get_body_length() {
+    return this->body.length();
 }
 
-void request::set_type(request_type type) {
-    request::type = type;
-}
-
-void request::set_path(std::string file_name) {
-    request::file = file_name;
-
-}
-
-void request::set_host_name(std::string host_name) {
-    request::host = host_name;
-
-}
-
-std::string request::format() {
-    std::string req = "";
-    req += ((type == GET) ? "GET" : "POST");
-    req += ' ' + file + ' ' + "HTTP/" + HTTP_VERSION + CARRIAGE_RET + LINE_FEED;
-    req += "Host: " + host + CARRIAGE_RET + LINE_FEED;
-    if (type == POST) {
-        //get file length for post request and get content type
-        FILE *p_file = NULL;
-        p_file = fopen(file.c_str(), "rb");
-        fseek(p_file, 0, SEEK_END);
-        post_content_len = ftell(p_file);
-        fclose(p_file);
-        if (post_content_len == -1) {
-            //TODO send 404 from server side
-        } else {
-            std::string extension;
-            for (int i = file.length() - 1; i >= 0; i--) {
-                if (file[i] == '.') {
-                    extension = file.substr(i + 1);
-                }
-            }
-
-            if (extension == "txt") {
-                post_content_type = "text/plain";
-            } else if (extension == "html") {
-                post_content_type = "text/html";
-            } else {
-                post_content_type = "image" + std::string("/") + extension;
-            }
-        }
-        req += "Content-Length: " + std::to_string(post_content_len) + CARRIAGE_RET + LINE_FEED;
-        req += "Content-Type: " + post_content_type + CARRIAGE_RET + LINE_FEED;
+std::string request::build_request_message() {
+    std::string request_message;
+    request_message = (method == GET ? "GET " : "POST ") + url + " " + http_version + CARRIAGE_RET + LINE_FEED;
+    for (auto const &header_field : header_fields) {
+        request_message += header_field.first + ": " + header_field.second + CARRIAGE_RET + LINE_FEED;
     }
-    req += CARRIAGE_RET;
-    req += LINE_FEED;
+
+    request_message = request_message + CARRIAGE_RET + LINE_FEED;
+    request_message = request_message + body;
     //TODO add "KEEP ALIVE"
-    return req;
+    return request_message;
 }
 
 std::string request::get_http_version() {
@@ -88,31 +68,23 @@ std::string request::get_http_version() {
 }
 
 void request::build(std::string req_msg) {
-    std::stringstream stream, first_line;
-    std::string temp_buffer;
-    stream << req_msg;
+    std::string request_line = req_msg.substr(0, req_msg.find(CARRIAGE_RET));
+    std::stringstream request_line_stream(request_line);
 
-    getline(stream, temp_buffer);
-    first_line << temp_buffer;
+    std::string req_method;
+    request_line_stream >> req_method >> url >> http_version;
+    method = req_method == "GET" ? GET : POST;
 
-    getline(stream, temp_buffer);
+    std::string headers_end;
+    headers_end = headers_end + CARRIAGE_RET + LINE_FEED + CARRIAGE_RET + LINE_FEED;
+    std::string headers = req_msg.substr(req_msg.find(LINE_FEED) + 1, req_msg.rfind(headers_end));
+    std::stringstream headers_stream(headers);
 
-    std::string request_type, path, protocol_version, host;
-    first_line >> request_type >> path >> protocol_version;
-    request::type = request_type == "POST" ? POST : GET;
-    request::file = path;
-    request::http_version = protocol_version.substr(protocol_version.find('/') + 1);
-    request::host = temp_buffer.substr(temp_buffer.find(":") + 2);
-
-    if (type == POST) {
-        getline(stream, temp_buffer);
-        request::post_content_len = stoi(temp_buffer.substr(temp_buffer.find(":") + 2));
-        getline(stream, temp_buffer);
-        request::post_content_type = temp_buffer.substr(temp_buffer.find(":") + 2);
+    std::string header_field;
+    while (getline(headers_stream, header_field)) {
+        std::string key = header_field.substr(0, header_field.find(':'));
+        std::string val = header_field.substr(header_field.find(": ") + 1);
+        this->header_fields[key] = val;
     }
+    this->body = req_msg.substr(req_msg.find(headers_end) + headers_end.length());
 }
-
-int request::get_length() {
-    return request::post_content_len;
-}
-

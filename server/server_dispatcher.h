@@ -1,7 +1,3 @@
-//
-// Created by mahmoud on 11/3/18.
-//
-
 #ifndef HTTP_PROTOCOL_SERVER_DISPATCHER_H
 #define HTTP_PROTOCOL_SERVER_DISPATCHER_H
 
@@ -19,8 +15,6 @@ private:
     static int init_server(struct sockaddr_in *address);
 
     static server_worker *process_request(int socket_no);
-
-    static request *parse_request(char *buffer);
 };
 
 #endif //HTTP_PROTOCOL_SERVER_DISPATCHER_H

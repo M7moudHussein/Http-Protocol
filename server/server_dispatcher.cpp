@@ -36,7 +36,7 @@ void server_dispatcher::run_server(int port_no) {
 int server_dispatcher::init_server(struct sockaddr_in *address) {
     int server_fd;
 
-    // Creating socket file descriptor
+    // Creating socket url descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
@@ -62,18 +62,13 @@ server_worker *server_dispatcher::process_request(int socket_no) {
     char *buffer = new char[REQUEST_BUFFER_SIZE];
     ssize_t data_len = read(socket_no, buffer, REQUEST_BUFFER_SIZE);
     if (data_len > -1) {
-        request *req = server_dispatcher::parse_request(buffer);
+        request req;
+        req.build(buffer);
         delete[] buffer;
         server_worker *worker = new server_worker(req, socket_no);
         return worker;
+    } else {
+        perror("Server: Error reading data from socket");
+        exit(EXIT_FAILURE);
     }
-    //TODO Add else
-    return nullptr;
-}
-
-request *server_dispatcher::parse_request(char *buffer) {
-    request *req = new request();
-    std::string request_msg = std::string(buffer);
-    req->build(request_msg);
-    return req;
 }

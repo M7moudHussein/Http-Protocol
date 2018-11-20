@@ -1,56 +1,49 @@
-//
-// Created by salma on 11/3/18.
-//
-
-#include <iostream>
 #include <sstream>
-#include <sys/stat.h>
+#include <zconf.h>
+#include <iostream>
 #include "file_reader.h"
 
-#define DEFAULT_PORT 80
-
-std::queue<request *> file_reader::parse_requests(std::string request_file) {
-    std::queue<request *> requests;
-    std::ifstream infile(request_file);
+std::vector<std::string> file_reader::read_requests_file(std::string request_file) {
+    std::vector<std::string> client_requests;
+    std::ifstream input_file_stream(request_file);
     std::string line;
-    while (std::getline(infile, line)) {
-        std::vector<std::string> attributes;
-        std::stringstream check1(line);
-        std::string intermediate;
-        while (getline(check1, intermediate, ' ')) {
-            attributes.push_back(intermediate);
-        }
-        request *r;
-        request_type type;
-        if (attributes[0] == "GET")
-            type = request_type::GET;
-        else
-            type = request_type::POST;
+    while (std::getline(input_file_stream, line)) {
+        client_requests.push_back(line);
 
-        /*optional port number given*/
-        if (attributes.size() == 4)
-            r = new request(type, attributes[1], attributes[2], stoi(attributes[3]));
-        else
-            r = new request(type, attributes[1], attributes[2], DEFAULT_PORT);
-        requests.push(r);
     }
-    return requests;
+    return client_requests;
 }
 
 // TODO: send data in chunks
-int file_reader::read_file(std::string file_path, std::string *buffer) {
-    int read_bytes;
+int file_reader::read_file(std::string url, std::string *buffer) {
+    std::string absolute_path = get_absolute_url(url);
+    int read_bytes = get_file_size(url);
     FILE *fp;
-    fp = fopen(file_path.c_str(), "r");
+    fp = fopen(absolute_path.c_str(), "r");
+    if (fp == nullptr) {
+        return -1;
+    }
+    char *temp_buffer = new char[read_bytes + 1];
+    fread(temp_buffer, sizeof(char), read_bytes, fp);
+    *buffer = std::string(temp_buffer);
+    delete[] temp_buffer;
+    return read_bytes;
+}
+
+int file_reader::get_file_size(std::string url) {
+    std::string absolute_path = get_absolute_url(url);
+    FILE *fp;
+    fp = fopen(absolute_path.c_str(), "r");
     if (fp == nullptr) {
         return -1;
     }
     fseek(fp, 0, SEEK_END);
-    read_bytes = ftell(fp);
-    rewind(fp);
-    char *temp_buffer = new char[read_bytes + 1];
-    fread(temp_buffer, sizeof(char), read_bytes, fp);
-    *buffer = std::string(temp_buffer);
-    delete temp_buffer;
-    return read_bytes;
+    return ftell(fp);
+}
+
+std::string file_reader::get_absolute_url(std::string url) {
+    int const max_path_length = 200;
+    char cwd[max_path_length];
+    getcwd(cwd, sizeof(cwd));
+    return std::string(cwd) + url;
 }

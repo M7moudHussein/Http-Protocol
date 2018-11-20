@@ -21,6 +21,8 @@ add_executable(Client_side
         models/request.h
         models/response.cpp
         models/response.h
+        models/http_utils.h
+        models/http_utils.cpp
         )
 add_executable(Server_side
         server/server_dispatcher.cpp
@@ -35,4 +37,7 @@ add_executable(Server_side
         models/request.cpp
         models/request.h
         models/response.cpp
-        models/response.h)
+        models/response.h
+        models/http_utils.h
+        models/http_utils.cpp
+        )

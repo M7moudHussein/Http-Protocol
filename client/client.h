@@ -6,8 +6,8 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include <response.h>
-#include <request.h>
 #include <file_writer.h>
+#include <request.h>
 
 class client {
 public:

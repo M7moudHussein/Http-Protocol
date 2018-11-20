@@ -1,7 +1,3 @@
-//
-// Created by salma on 11/3/18.
-//
-
 #ifndef HTTP_PROTOCOL_SERVER_WORKER_H
 #define HTTP_PROTOCOL_SERVER_WORKER_H
 
@@ -13,12 +9,12 @@
 
 class server_worker {
 public:
-    server_worker(request *req, int socket_no);
+    server_worker(request req, int socket_no);
 
     void process_request();
 
 private:
-    request *request_to_process;
+    request request_to_process;
     int socket_no;
 };
 
