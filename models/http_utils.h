@@ -6,7 +6,7 @@
 #define HTTP_PROTOCOL_HTTP_UTILS_H
 
 #include <string>
-#include "request.h"
+//#include "request.h"
 
 #define HOST "Host"
 #define CONTENT_LENGTH "Content-Length"
@@ -17,6 +17,8 @@
 #define HTTP_VERSION_1_1 "HTTP/1.1"
 #define CARRIAGE_RET "\r"
 #define LINE_FEED "\n"
+
+class request;
 
 enum request_method {
     GET,
