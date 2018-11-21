@@ -3,16 +3,6 @@
 #include <file_reader.h>
 #include "server_worker.h"
 
-struct thread_args {
-    int socket_no;
-    request *request_to_process;
-
-    thread_args(int socket_no, request *request_to_process) {
-        this->socket_no = socket_no;
-        this->request_to_process = request_to_process;
-    }
-};
-
 void *handle_request(void *thread_arguments);
 
 response handle_get_request(request *request_to_process);
@@ -27,8 +17,10 @@ server_worker::server_worker(request request_to_process, int socket_no) {
 }
 
 void server_worker::process_request() {
-    thread_args *args = new thread_args(socket_no, &request_to_process);
-    int rc = pthread_create(new pthread_t, NULL, handle_request, args);
+    thread_args *args = new thread_args();
+    args->socket_no = socket_no;
+    args->request_to_process = request_to_process;
+    int rc = pthread_create(new pthread_t, nullptr, handle_request, args);
 }
 
 
@@ -51,6 +43,7 @@ void *handle_request(void *arguments) {
     if (request_to_process->get_method() == POST) {
         handle_post_followers(request_to_process, socket_no);
     }
+    delete args;
 }
 
 response handle_get_request(request *request_to_process) {

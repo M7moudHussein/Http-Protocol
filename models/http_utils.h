@@ -6,6 +6,7 @@
 #define HTTP_PROTOCOL_HTTP_UTILS_H
 
 #include <string>
+#include "request.h"
 
 #define HOST "Host"
 #define CONTENT_LENGTH "Content-Length"
@@ -25,6 +26,23 @@ enum request_method {
 enum response_status_code {
     CODE_404,
     CODE_200
+};
+
+struct thread_args {
+    int socket_no;
+    request *request_to_process;
+
+    thread_args(int socket_no, request *request_to_process) {
+        this->socket_no = socket_no;
+        this->request_to_process = request_to_process;
+    }
+};
+
+struct receiver_args {
+    int socket_fd;
+    receiver_args(int socket_fd) {
+        this->socket_fd = socket_fd;
+    }
 };
 
 class http_utils {
