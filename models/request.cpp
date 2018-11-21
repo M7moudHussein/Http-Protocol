@@ -47,8 +47,8 @@ int request::get_port_num() {
     return port_number;
 }
 
-long request::get_body_length() {
-    return this->body.length();
+long request::get_content_length() {
+    return stoi(this->header_fields[CONTENT_LENGTH]);
 }
 
 std::string request::build_request_message() {

@@ -21,8 +21,6 @@ public:
 
     std::string get_body();
 
-    int get_body_length();
-
     void set_http_version(std::string http_version);
 
     void set_content_type(std::string content_type);

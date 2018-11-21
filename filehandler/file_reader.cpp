@@ -17,28 +17,32 @@ std::vector<std::string> file_reader::read_requests_file(std::string request_fil
 // TODO: send data in chunks
 int file_reader::read_file(std::string url, std::string *buffer) {
     std::string absolute_path = get_absolute_url(url);
-    int read_bytes = get_file_size(url);
-    FILE *fp;
-    fp = fopen(absolute_path.c_str(), "r");
-    if (fp == nullptr) {
+    int file_size = get_file_size(url);
+    FILE *fp = fopen(absolute_path.c_str(), "r");
+    if (fp == NULL) {
         return -1;
     }
-    char *temp_buffer = new char[read_bytes + 1];
-    fread(temp_buffer, sizeof(char), read_bytes, fp);
-    *buffer = std::string(temp_buffer);
-    delete[] temp_buffer;
-    return read_bytes;
+    char temp_buffer[file_size];
+    int read_bytes = fread(temp_buffer, sizeof(char), read_bytes, fp);
+    fclose(fp);
+    if (read_bytes != file_size) {
+        perror("Error reading file");
+        exit(EXIT_FAILURE);
+    }
+    *buffer = std::string(temp_buffer, file_size);
+    return file_size;
 }
 
 int file_reader::get_file_size(std::string url) {
     std::string absolute_path = get_absolute_url(url);
-    FILE *fp;
-    fp = fopen(absolute_path.c_str(), "r");
+    FILE *fp = fopen(absolute_path.c_str(), "r");
     if (fp == nullptr) {
         return -1;
     }
     fseek(fp, 0, SEEK_END);
-    return ftell(fp);
+    int file_size = ftell(fp);
+    fclose(fp);
+    return file_size;
 }
 
 std::string file_reader::get_absolute_url(std::string url) {
