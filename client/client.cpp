@@ -6,7 +6,7 @@
 client::client(std::string server_ip) {
     client::server_ip = server_ip;
     receiver_args *args = new receiver_args(sock_fd);
-    std::thread receiver_thread(&client::process_response,args);
+    std::thread receiver_thread(&client::process_response, this, args);
 }
 
 int client::get_socket_fd() {
