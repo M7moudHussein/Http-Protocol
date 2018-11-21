@@ -17,6 +17,7 @@ request::request(std::string test_request) {
     this->method = attributes[0] == "GET" ? GET : POST;
     this->url = attributes[1];
     this->header_fields[HOST] = attributes[2];
+    this->header_fields[CONNECTION] = KEEP_ALIVE;
     this->http_version = DEFAULT_HTTP_VERSION;
 
     /*optional port number given*/
@@ -59,7 +60,6 @@ std::string request::build_request_message() {
 
     request_message = request_message + CARRIAGE_RET + LINE_FEED;
     request_message = request_message + body;
-    //TODO add "KEEP ALIVE"
     return request_message;
 }
 

@@ -10,6 +10,7 @@
 #define HOST "Host"
 #define CONTENT_LENGTH "Content-Length"
 #define CONTENT_TYPE "Content-Type"
+#define CONNECTION "Connection"
 #define KEEP_ALIVE "Keep-Alive"
 #define HTTP_VERSION_1_0 "HTTP/1.0"
 #define HTTP_VERSION_1_1 "HTTP/1.1"
