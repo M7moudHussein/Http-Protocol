@@ -17,9 +17,7 @@ server_worker::server_worker(request request_to_process, int socket_no) {
 }
 
 void server_worker::process_request() {
-    thread_args *args = new thread_args();
-    args->socket_no = socket_no;
-    args->request_to_process = request_to_process;
+    thread_args *args = new thread_args(socket_no, &request_to_process);
     int rc = pthread_create(new pthread_t, nullptr, handle_request, args);
 }
 
