@@ -11,6 +11,7 @@
 #define HTTP_VERSION "HTTP/1.1"
 #define CARRIAGE_RET "\r"
 #define LINE_FEED "\n"
+#define HEADERS_END "\r\n\r\n"
 
 class request;
 
@@ -22,16 +23,6 @@ enum request_method {
 enum response_status_code {
     CODE_404,
     CODE_200
-};
-
-struct thread_args {
-    int socket_no;
-    request *request_to_process;
-
-    thread_args(int socket_no, request *request_to_process) {
-        this->socket_no = socket_no;
-        this->request_to_process = request_to_process;
-    }
 };
 
 class http_utils {

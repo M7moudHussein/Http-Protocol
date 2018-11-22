@@ -22,7 +22,7 @@ int file_reader::read_file(std::string url, std::string *buffer) {
     if (fp == NULL) {
         return -1;
     }
-    char temp_buffer[file_size];
+    char *temp_buffer = new char[file_size];
     int read_bytes = fread(temp_buffer, sizeof(char), read_bytes, fp);
     fclose(fp);
     if (read_bytes != file_size) {
@@ -30,6 +30,7 @@ int file_reader::read_file(std::string url, std::string *buffer) {
         exit(EXIT_FAILURE);
     }
     *buffer = std::string(temp_buffer, file_size);
+    delete[] temp_buffer;
     return file_size;
 }
 

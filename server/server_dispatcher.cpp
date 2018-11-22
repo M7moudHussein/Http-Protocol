@@ -28,8 +28,8 @@ void server_dispatcher::run_server(int port_no) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        server_worker *worker = process_request(socket_no);
-        worker->process_request();
+        server_worker *worker = new server_worker(socket_no);
+        worker->start();
     }
 }
 
@@ -56,19 +56,4 @@ int server_dispatcher::init_server(struct sockaddr_in *address) {
     }
 
     return server_fd;
-}
-
-server_worker *server_dispatcher::process_request(int socket_no) {
-    char *buffer = new char[REQUEST_BUFFER_SIZE];
-    int data_len = read(socket_no, buffer, REQUEST_BUFFER_SIZE);
-    if (data_len > -1) {
-        request req;
-        req.build(std::string(buffer, data_len));
-        delete[] buffer;
-        server_worker *worker = new server_worker(req, socket_no);
-        return worker;
-    } else {
-        perror("Server: Error reading data from socket");
-        exit(EXIT_FAILURE);
-    }
 }

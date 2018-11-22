@@ -7,7 +7,7 @@
 
 class request {
 public:
-    request() = default;;
+    request() = default;
 
     request(std::string test_request);
 
@@ -23,9 +23,13 @@ public:
 
     std::string get_http_version();
 
-    void build(std::string req_msg);
+    void build_header(std::string header);
+
+    void build_body(std::string body);
 
 private:
+    std::string request_line;
+    std::string header;
     request_method method;
     std::string url;
     std::string http_version;

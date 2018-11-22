@@ -1,6 +1,5 @@
 #include <file_reader.h>
 #include <iostream>
-#include <thread>
 #include "client.h"
 
 client::client(std::string server_ip) {
@@ -57,11 +56,8 @@ void client::handle_post_request(request *req) {
 
 int client::send_request(request *req) {
     std::string req_msg = req->build_request_message();
+    std::cout << req_msg << std::endl;
     return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
-}
-
-void client::set_current_req(request *req) {
-    this->curr_req = req;
 }
 
 void client::process_response() {

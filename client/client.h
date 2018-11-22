@@ -1,7 +1,9 @@
 #ifndef HTTP_PROTOCOL_CLIENT_H
 #define HTTP_PROTOCOL_CLIENT_H
 #define MAX_BUFFER_SIZE 1452
+
 #include <sys/socket.h>
+#include <thread>
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
@@ -24,8 +26,6 @@ public:
     void handle_get_response(request *, response *);
 
     void handle_post_request(request *);
-
-    void set_current_req(request *req);
 
     void process_response();
 

@@ -1,90 +1,137 @@
 #include <utility>
 #include <iostream>
 #include <file_reader.h>
+#include <thread>
+#include <zconf.h>
+#include <sys/socket.h>
+#include <cstring>
 #include "server_worker.h"
 
-void *handle_request(void *thread_arguments);
-
-response handle_get_request(request *request_to_process);
-
-response handle_post_request(request *request_to_process);
-
-void handle_post_followers(request *request_to_process, int socket_no);
-
-server_worker::server_worker(request request_to_process, int socket_no) {
-    this->request_to_process = std::move(request_to_process);
+server_worker::server_worker(int socket_no) {
     this->socket_no = socket_no;
+    post_in_queue = false;
+    has_timed_out = false;
 }
 
-void server_worker::process_request() {
-    thread_args *args = new thread_args(socket_no, &request_to_process);
-    int rc = pthread_create(new pthread_t, nullptr, handle_request, args);
+void server_worker::start() {
+    new std::thread(&server_worker::retrieve_requests, this);
+    new std::thread(&server_worker::process_requests, this);
 }
 
 
-void *handle_request(void *arguments) {
-    thread_args *args = (thread_args *) arguments;
-    request *request_to_process = args->request_to_process;
-    int socket_no = args->socket_no;
+void server_worker::retrieve_requests() {
+    fd_set read_fds;
+    struct timeval tv;
+    while (true) {
+        if (post_in_queue) {
+            continue;
+        }
+        FD_ZERO(&read_fds);
+        FD_SET(socket_no, &read_fds);
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+        int activity = select(socket_no + 1, &read_fds, NULL, NULL, &tv);
+        if (activity == -1) {
+            perror("Error while waiting for new requests");
+            close(socket_no);
+            exit(EXIT_FAILURE);
+        } else if (activity == 0) {
+            std::cout << "Connection timeout" << std::endl;
+            has_timed_out = true;
+            break;
+        } else if (activity > 0) {
+            pull_requests();
+        }
+    }
+}
 
-    response res;
-    if (request_to_process->get_method() == POST) {
-        res = handle_post_request(request_to_process);
+void server_worker::pull_requests() {
+    ssize_t read_bytes = recv(socket_no, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
+    std::string buffer_string = std::string(request_buffer, read_bytes);
+    unsigned long header_end_index = buffer_string.find(HEADERS_END);
+    if (read_bytes > 0 && header_end_index == std::string::npos) {
+        std::cout << "Request buffer size exceeded" << std::endl;
     } else {
-        res = handle_get_request(request_to_process);
+        buffer_string = buffer_string.substr(0, header_end_index);
+        request *req = new request();
+        req->build_header(buffer_string);
+        this->requests_queue.push(req);
+        if (req->get_method() == POST) {
+            post_in_queue = true;
+        }
     }
-
-    std::string response_message = res.build_response_message();
-    std::cout << response_message << std::endl;
-    send(socket_no, response_message.c_str(), response_message.length(), 0);
-
-    if (request_to_process->get_method() == POST) {
-        handle_post_followers(request_to_process, socket_no);
-    }
-    delete args;
 }
 
-response handle_get_request(request *request_to_process) {
+void server_worker::process_requests() {
+    while (!has_timed_out || !requests_queue.empty()) {
+        std::cout << requests_queue.size() << std::endl;
+        if (!requests_queue.empty()) {
+            request *req = requests_queue.front();
+            requests_queue.pop();
+            response *res = nullptr;
+            switch (req->get_method()) {
+                case GET:
+                    res = handle_get_request(req);
+                    break;
+                case POST:
+                    res = handle_post_request(req);
+                    break;
+            }
+
+            std::string response_message = res->build_response_message();
+            send(socket_no, response_message.c_str(), response_message.length(), 0);
+
+            if (req->get_method() == POST) {
+                handle_post_followers(req);
+            }
+            delete req;
+            delete res;
+        }
+    }
+    close(socket_no);
+}
+
+response *server_worker::handle_get_request(request *request_to_process) {
     std::string file_data;
     int data_length;
     file_reader reader;
     data_length = reader.read_file(request_to_process->get_url(), &file_data);
 
-    response res;
-    res.set_http_version(request_to_process->get_http_version());
+    response *res = new response();
+    res->set_http_version(request_to_process->get_http_version());
 
     if (data_length == -1) {
-        res.set_status(CODE_404);
-        res.set_content_length(0);
+        res->set_status(CODE_404);
+        res->set_content_length(0);
     } else {
-        res.set_status(CODE_200);
-        res.set_body(file_data);
-        res.set_content_type(http_utils::get_content_type(request_to_process->get_url()));
-        res.set_content_length(reader.get_file_size(request_to_process->get_url()));
+        res->set_status(CODE_200);
+        res->set_body(file_data);
+        res->set_content_type(http_utils::get_content_type(request_to_process->get_url()));
+        res->set_content_length(reader.get_file_size(request_to_process->get_url()));
     }
     return res;
 }
 
-response handle_post_request(request *request_to_process) {
-    response res;
-    res.set_status(CODE_200);
-    res.set_http_version(request_to_process->get_http_version());
-    res.set_content_length(0);
+response *server_worker::handle_post_request(request *request_to_process) {
+    response *res = new response();
+    res->set_status(CODE_200);
+    res->set_http_version(request_to_process->get_http_version());
+    res->set_content_length(0);
+
     return res;
 }
 
-void handle_post_followers(request *request_to_process, int socket_no) {
-    char *file_data = new char[request_to_process->get_content_length()];
+void server_worker::handle_post_followers(request *request_to_process) {
     int total_read = 0;
     while (total_read < request_to_process->get_content_length()) {
-        int bytes_read = recv(socket_no, file_data, request_to_process->get_content_length(), 0);
+        ssize_t bytes_read = recv(socket_no, request_buffer, REQUEST_BUFFER_SIZE, 0);
         if (bytes_read == -1) {
             perror("Error while receiving data");
             break;
         }
         total_read += bytes_read;
         file_writer writer;
-        writer.write(request_to_process->get_url().c_str(), std::string(file_data, bytes_read));
+        writer.write(request_to_process->get_url(), std::string(request_buffer, bytes_read));
     }
-    delete[] file_data;
+    post_in_queue = false;
 }

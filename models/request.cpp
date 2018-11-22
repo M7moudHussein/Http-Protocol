@@ -1,5 +1,6 @@
 #include <sstream>
 #include <file_reader.h>
+#include <iostream>
 #include "request.h"
 
 #define DEFAULT_PORT_NUMBER 80
@@ -67,18 +68,17 @@ std::string request::get_http_version() {
     return this->http_version;
 }
 
-void request::build(std::string req_msg) {
-    std::string request_line = req_msg.substr(0, req_msg.find(CARRIAGE_RET));
+
+void request::build_header(std::string header) {
+    request_line = header.substr(0, header.find(CARRIAGE_RET));
     std::stringstream request_line_stream(request_line);
 
     std::string req_method;
     request_line_stream >> req_method >> url >> http_version;
     method = req_method == "GET" ? GET : POST;
 
-    std::string headers_end;
-    headers_end = headers_end + CARRIAGE_RET + LINE_FEED + CARRIAGE_RET + LINE_FEED;
-    std::string headers = req_msg.substr(req_msg.find(LINE_FEED) + 1, req_msg.rfind(headers_end));
-    std::stringstream headers_stream(headers);
+    std::string header_lines = header.substr(header.find(LINE_FEED) + 1);
+    std::stringstream headers_stream(header_lines);
 
     std::string header_field;
     while (getline(headers_stream, header_field)) {
@@ -86,5 +86,8 @@ void request::build(std::string req_msg) {
         std::string val = header_field.substr(header_field.find(": ") + 1);
         this->header_fields[key] = val;
     }
-    this->body = req_msg.substr(req_msg.find(headers_end) + headers_end.length());
+}
+
+void request::build_body(std::string body) {
+    this->body = body;
 }

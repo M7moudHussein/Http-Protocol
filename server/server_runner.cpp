@@ -5,7 +5,7 @@
 
 int main(int argc, char const *argv[]) {
 //    if (argc == 2) {
-        int portNo = atoi(argv[0]);
+//        int portNo = atoi(argv[1]);
         server_dispatcher::run_server(8080);
 //    } else {
 //        perror("Invalid port number");
