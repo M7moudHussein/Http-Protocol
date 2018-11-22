@@ -3,7 +3,7 @@
 #include "request.h"
 
 #define DEFAULT_PORT_NUMBER 80
-#define DEFAULT_HTTP_VERSION HTTP_VERSION_1_0
+#define DEFAULT_HTTP_VERSION HTTP_VERSION
 
 request::request(std::string test_request) {
     std::vector<std::string> attributes;

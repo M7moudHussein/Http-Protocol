@@ -3,6 +3,10 @@
 #include <sstream>
 #include "response.h"
 
+response::response() {
+
+}
+
 std::string response::build_response_message() {
     std::string response_message = this->http_version + " " + get_status_string() + CARRIAGE_RET + LINE_FEED;
 

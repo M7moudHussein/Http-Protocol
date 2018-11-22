@@ -13,7 +13,7 @@ class client {
 public:
     client(std::string server_ip);
 
-    int get_socket_fd();
+    void start();
 
     bool establish_connection(int server_port);
 
@@ -27,14 +27,14 @@ public:
 
     void set_current_req(request *req);
 
-    void process_response(void *arguments);
+    void process_response();
 
 private:
     int sock_fd = 0;
     std::string server_ip;
     file_writer writer;
     request *curr_req;
-
+    std::thread *receiver_thread;
 };
 
 #endif

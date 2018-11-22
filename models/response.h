@@ -7,6 +7,8 @@
 
 class response {
 public:
+    response();
+
     void set_status(response_status_code code);
 
     response_status_code get_status();
