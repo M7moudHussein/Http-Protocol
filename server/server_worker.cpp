@@ -36,7 +36,7 @@ void server_worker::retrieve_requests() {
             close(socket_no);
             exit(EXIT_FAILURE);
         } else if (activity == 0) {
-            std::cout << "Connection timeout" << std::endl;
+            std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
             break;
         } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
