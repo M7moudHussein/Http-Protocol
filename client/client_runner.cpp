@@ -16,22 +16,22 @@ int main(int argc, char const *argv[]) {
         exit(EXIT_FAILURE);
     for (std::string test_request: test_requests) {
         request *req = new request(test_request);
-        client.set_current_request(req);
         if (client.send_request(req) < 0) {
             // TODO HANDLE SENDING ERRORS
         }
-        std::cout<<"sss"<<req->get_method();
-        //client.close_connection();
+        client.set_current_request(req);
     }
-    int x = 0;
-    while (true) {
-        x++;
-        if (x == 1000000000) {
-            x = x / 2;
-        }
-        if (x == -1) {
-            break;
-        }
-    }
-    std::cout << x << std::endl;
+    client.receiver_thread->join();
+    client.close_connection();
+//    int x = 0;
+//    while (true) {
+//        x++;
+//        if (x == 1000000000) {
+//            x = x / 2;
+//        }
+//        if (x == -1) {
+//            break;
+//        }
+//    }
+//    std::cout << x << std::endl;
 }

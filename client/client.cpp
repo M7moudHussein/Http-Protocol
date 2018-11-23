@@ -1,5 +1,6 @@
 #include <file_reader.h>
 #include <iostream>
+#include <zconf.h>
 #include "client.h"
 
 client::client(std::string server_ip) {
@@ -41,8 +42,8 @@ bool client::establish_connection(int server_port) {
     return true;
 }
 
-bool client::close_connection() {
-    return false;
+int client::close_connection() {
+    return close(sock_fd);
 }
 
 int client::send_request(request *req) {
@@ -56,13 +57,11 @@ void client::process_response() {
     fd_set read_fds;
     struct timeval tv{};
     while (true) {
-        std::cout<<"RRRRR";
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
-        tv.tv_sec = 5;
+        tv.tv_sec = 20;
         tv.tv_usec = 0;
         int activity = select(sock_fd + 1, &read_fds, NULL, NULL, &tv);
-        std::cout<<activity;
         if (activity < 0) {
             perror("Error while waiting to receive data");
             exit(EXIT_FAILURE);
@@ -73,6 +72,7 @@ void client::process_response() {
             ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
             if (read_data_length > 0) {
                 response *res = new response();
+                std::cout<<"Activity: "<<activity<<" Type: "<<curr_req->get_method()<<"\n";
                 res->build(std::string(response_buffer, read_data_length));
                 if (res->get_status() == response_status_code::CODE_200) {
                     if (curr_req->get_method() == GET) {
@@ -88,15 +88,13 @@ void client::process_response() {
                 break;
                 // TODO HANDLE RECEIVING ERRORS
             }
-
-            delete[] response_buffer;
         }
     }
+    delete[] response_buffer;
 }
 
 
 void client::handle_get_response(request *req, response *res) {
-    std::cout<<"HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
     writer.write(req->get_url(), res->get_body());
 }
 

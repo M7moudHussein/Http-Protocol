@@ -28,7 +28,7 @@ void server_worker::retrieve_requests() {
         }
         FD_ZERO(&read_fds);
         FD_SET(socket_no, &read_fds);
-        tv.tv_sec = 10;
+        tv.tv_sec = 20;
         tv.tv_usec = 0;
         int activity = select(socket_no + 1, &read_fds, NULL, NULL, &tv);
         if (activity == -1) {
@@ -38,7 +38,7 @@ void server_worker::retrieve_requests() {
         } else if (activity == 0) {
             std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
-            exit(0);
+            //exit(0);
         } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
             pull_requests();
         }
@@ -93,7 +93,6 @@ void server_worker::process_requests() {
             std::cout << response_message << std::endl;
 
             send(socket_no, response_message.c_str(), response_message.length(), 0);
-
             if (req->get_method() == POST) {
                 handle_post_followers(req);
             }
