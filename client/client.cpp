@@ -56,11 +56,13 @@ void client::process_response() {
     fd_set read_fds;
     struct timeval tv{};
     while (true) {
+        std::cout<<"RRRRR";
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
         tv.tv_sec = 5;
         tv.tv_usec = 0;
         int activity = select(sock_fd + 1, &read_fds, NULL, NULL, &tv);
+        std::cout<<activity;
         if (activity < 0) {
             perror("Error while waiting to receive data");
             exit(EXIT_FAILURE);
@@ -94,6 +96,7 @@ void client::process_response() {
 
 
 void client::handle_get_response(request *req, response *res) {
+    std::cout<<"HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE";
     writer.write(req->get_url(), res->get_body());
 }
 

@@ -20,6 +20,7 @@ int main(int argc, char const *argv[]) {
         if (client.send_request(req) < 0) {
             // TODO HANDLE SENDING ERRORS
         }
+        std::cout<<"sss"<<req->get_method();
         //client.close_connection();
     }
     int x = 0;

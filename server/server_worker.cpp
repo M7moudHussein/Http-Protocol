@@ -55,13 +55,12 @@ void server_worker::pull_requests() {
         return;
     }
     std::cout << "Request received: " << std::endl;
-    std::cout << "*****\n" << request_buffer << "*******" << std::endl;
+    std::cout << request_buffer << std::endl;
     std::vector<size_t> header_ends = http_utils::findHeaderEnds(request_buffer);
     std::string buffer_string = std::string(request_buffer, read_bytes);
     size_t prev_pos = 0;
     for (size_t req_start_pos : header_ends) {
         std::string req_string = buffer_string.substr(prev_pos, req_start_pos + 4);
-        std::cout << "+++++" << req_string << "+++++" << "\n";
         request *req = new request();
         req->build_header(req_string);
         this->requests_queue.push(req);
