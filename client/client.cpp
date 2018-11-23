@@ -65,8 +65,8 @@ void client::process_response() {
             perror("Error while waiting to receive data");
             exit(EXIT_FAILURE);
         } else if (activity == 0) {
-            std::cout << "Time Out, No More Responses Received" << std::endl;
-            //exit(EXIT_FAILURE);
+            std::cout << "Time Out, No More Responses Sent" << std::endl;
+            exit(0);
         } else if (activity > 0 && FD_ISSET(sock_fd, &read_fds)) {
             ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
             if (read_data_length > 0) {

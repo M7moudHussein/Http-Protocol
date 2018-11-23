@@ -38,7 +38,7 @@ void server_worker::retrieve_requests() {
         } else if (activity == 0) {
             std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
-            break;
+            exit(0);
         } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
             pull_requests();
         }
@@ -48,27 +48,27 @@ void server_worker::retrieve_requests() {
 void server_worker::pull_requests() {
     ssize_t read_bytes = recv(socket_no, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
 
-    std::cout << "Request received: " << std::endl;
-    std::cout << request_buffer << std::endl;
-
-    if (read_bytes < 0) {
+    if(read_bytes == 0)
+        return;
+    else if (read_bytes < 0) {
         perror("Error while reading from socket");
         return;
-    } else if (read_bytes == 0) {
-        return;
     }
+    std::cout << "Request received: " << std::endl;
+    std::cout << "*****\n" << request_buffer << "*******" << std::endl;
+    std::vector<size_t> header_ends = http_utils::findHeaderEnds(request_buffer);
     std::string buffer_string = std::string(request_buffer, read_bytes);
-    unsigned long header_end_index = buffer_string.find(HEADERS_END);
-    if (header_end_index == std::string::npos) {
-        std::cout << "Request buffer size exceeded" << std::endl;
-    } else {
-        buffer_string = buffer_string.substr(0, header_end_index);
+    size_t prev_pos = 0;
+    for (size_t req_start_pos : header_ends) {
+        std::string req_string = buffer_string.substr(prev_pos, req_start_pos + 4);
+        std::cout << "+++++" << req_string << "+++++" << "\n";
         request *req = new request();
-        req->build_header(buffer_string);
+        req->build_header(req_string);
         this->requests_queue.push(req);
         if (req->get_method() == POST) {
             post_in_queue = true;
         }
+        prev_pos = req_start_pos + 4;
     }
 }
 
@@ -88,8 +88,9 @@ void server_worker::process_requests() {
             }
 
             std::string response_message = res->build_response_message();
+            std::string method = req->get_method() == GET ? "GET" : "POST";
 
-            std::cout << "Response sent: " << std::endl;
+            std::cout << "Response for " << method << " sent: " << std::endl;
             std::cout << response_message << std::endl;
 
             send(socket_no, response_message.c_str(), response_message.length(), 0);

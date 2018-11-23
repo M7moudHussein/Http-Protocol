@@ -2,6 +2,7 @@
 #define HTTP_PROTOCOL_HTTP_UTILS_H
 
 #include <string>
+#include <vector>
 
 #define HOST "Host"
 #define CONTENT_LENGTH "Content-Length"
@@ -28,6 +29,7 @@ enum response_status_code {
 class http_utils {
 public:
     static std::string get_content_type(std::string url);
+    static std::vector<size_t > findHeaderEnds(std::string recieved_buffer);
 };
 
 
