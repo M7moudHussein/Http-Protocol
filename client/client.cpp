@@ -58,7 +58,7 @@ void client::process_response() {
     while (true) {
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
-        tv.tv_sec = 10;
+        tv.tv_sec = 5;
         tv.tv_usec = 0;
         int activity = select(sock_fd + 1, &read_fds, NULL, NULL, &tv);
         if (activity < 0) {
@@ -66,7 +66,7 @@ void client::process_response() {
             exit(EXIT_FAILURE);
         } else if (activity == 0) {
             std::cout << "Time Out" << std::endl;
-            exit(EXIT_FAILURE);
+            //exit(EXIT_FAILURE);
         } else if (activity > 0 && FD_ISSET(sock_fd, &read_fds)) {
             ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
             if (read_data_length > 0) {

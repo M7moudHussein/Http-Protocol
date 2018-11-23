@@ -1,20 +1,17 @@
 #include <sstream>
 #include <file_reader.h>
 #include <iostream>
+#include <iterator>
 #include "request.h"
 
 #define DEFAULT_PORT_NUMBER 80
 #define DEFAULT_HTTP_VERSION HTTP_VERSION
 
 request::request(std::string test_request) {
-    std::vector<std::string> attributes;
-    std::stringstream line_stream(test_request);
-    std::string temp_buffer;
-
-    while (getline(line_stream, temp_buffer, ' ')) {
-        attributes.push_back(temp_buffer);
-    }
-
+    std::stringstream ss(test_request);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> attributes(begin, end);
     this->method = attributes[0] == "GET" ? GET : POST;
     this->url = attributes[1];
     this->header_fields[HOST] = attributes[2];

@@ -8,21 +8,19 @@
 int main(int argc, char const *argv[]) {
     //TODO check on argv
     file_reader reader;
-    std::vector<std::string> test_requests = reader.read_requests_file("input.txt");
-    client client(argv[1]);
+    std::vector<std::string> test_requests = reader.read_requests_file("/input.txt");
+    client client("127.0.0.1");
     client.start();
+    bool connected = client.establish_connection(8080);
+    if (!connected)
+        exit(EXIT_FAILURE);
     for (std::string test_request: test_requests) {
         request *req = new request(test_request);
-        bool connected = client.establish_connection(req->get_port_num());
-        if (connected) {
-            client.set_current_request(req);
-            if (client.send_request(req) < 0) {
-                // TODO HANDLE SENDING ERRORS
-            }
-            //client.close_connection();
-        } else {
-            // TODO HANDLE ERRORS
+        client.set_current_request(req);
+        if (client.send_request(req) < 0) {
+            // TODO HANDLE SENDING ERRORS
         }
+        //client.close_connection();
     }
     int x = 0;
     while (true) {

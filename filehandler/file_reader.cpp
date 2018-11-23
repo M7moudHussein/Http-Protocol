@@ -5,7 +5,8 @@
 
 std::vector<std::string> file_reader::read_requests_file(std::string request_file) {
     std::vector<std::string> client_requests;
-    std::ifstream input_file_stream(request_file);
+    std::string absolute_path = get_absolute_url(request_file);
+    std::ifstream input_file_stream(absolute_path);
     std::string line;
     while (std::getline(input_file_stream, line)) {
         client_requests.push_back(line);
