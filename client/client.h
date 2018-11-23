@@ -1,6 +1,6 @@
 #ifndef HTTP_PROTOCOL_CLIENT_H
 #define HTTP_PROTOCOL_CLIENT_H
-#define MAX_BUFFER_SIZE 1452
+#define MAX_BUFFER_SIZE 1 << 13
 
 #include <sys/socket.h>
 #include <thread>
@@ -28,6 +28,8 @@ public:
     void handle_post_request(request *);
 
     void process_response();
+
+    void set_current_request(request *current_request);
 
 private:
     int sock_fd = 0;

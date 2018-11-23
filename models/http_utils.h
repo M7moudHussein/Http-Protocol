@@ -7,7 +7,7 @@
 #define CONTENT_LENGTH "Content-Length"
 #define CONTENT_TYPE "Content-Type"
 #define CONNECTION "Connection"
-#define KEEP_ALIVE "Keep-Alive"
+#define KEEP_ALIVE "keep-alive"
 #define HTTP_VERSION "HTTP/1.1"
 #define CARRIAGE_RET "\r"
 #define LINE_FEED "\n"

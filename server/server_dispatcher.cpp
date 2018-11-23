@@ -28,6 +28,7 @@ void server_dispatcher::run_server(int port_no) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
+        std::cout << "Connection created on socket: " << socket_no << std::endl;
         server_worker *worker = new server_worker(socket_no);
         worker->start();
     }

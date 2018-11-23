@@ -21,7 +21,7 @@ void server_worker::start() {
 
 void server_worker::retrieve_requests() {
     fd_set read_fds;
-    struct timeval tv;
+    struct timeval tv{};
     while (true) {
         if (post_in_queue) {
             continue;
@@ -39,7 +39,7 @@ void server_worker::retrieve_requests() {
             std::cout << "Connection timeout" << std::endl;
             has_timed_out = true;
             break;
-        } else if (activity > 0) {
+        } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
             pull_requests();
         }
     }
@@ -47,9 +47,19 @@ void server_worker::retrieve_requests() {
 
 void server_worker::pull_requests() {
     ssize_t read_bytes = recv(socket_no, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
+
+    std::cout << "Request received: " << std::endl;
+    std::cout << request_buffer << std::endl;
+
+    if (read_bytes < 0) {
+        perror("Error while reading from socket");
+        return;
+    } else if (read_bytes == 0) {
+        return;
+    }
     std::string buffer_string = std::string(request_buffer, read_bytes);
     unsigned long header_end_index = buffer_string.find(HEADERS_END);
-    if (read_bytes > 0 && header_end_index == std::string::npos) {
+    if (header_end_index == std::string::npos) {
         std::cout << "Request buffer size exceeded" << std::endl;
     } else {
         buffer_string = buffer_string.substr(0, header_end_index);
@@ -64,7 +74,6 @@ void server_worker::pull_requests() {
 
 void server_worker::process_requests() {
     while (!has_timed_out || !requests_queue.empty()) {
-        std::cout << requests_queue.size() << std::endl;
         if (!requests_queue.empty()) {
             request *req = requests_queue.front();
             requests_queue.pop();
@@ -79,6 +88,10 @@ void server_worker::process_requests() {
             }
 
             std::string response_message = res->build_response_message();
+
+            std::cout << "Response sent: " << std::endl;
+            std::cout << response_message << std::endl;
+
             send(socket_no, response_message.c_str(), response_message.length(), 0);
 
             if (req->get_method() == POST) {

@@ -15,6 +15,7 @@ int main(int argc, char const *argv[]) {
         request *req = new request(test_request);
         bool connected = client.establish_connection(req->get_port_num());
         if (connected) {
+            client.set_current_request(req);
             if (client.send_request(req) < 0) {
                 // TODO HANDLE SENDING ERRORS
             }
@@ -23,4 +24,15 @@ int main(int argc, char const *argv[]) {
             // TODO HANDLE ERRORS
         }
     }
+    int x = 0;
+    while (true) {
+        x++;
+        if (x == 1000000000) {
+            x = x / 2;
+        }
+        if (x == -1) {
+            break;
+        }
+    }
+    std::cout << x << std::endl;
 }
