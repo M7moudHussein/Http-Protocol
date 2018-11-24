@@ -24,7 +24,7 @@ int file_reader::read_file(std::string url, std::string *buffer) {
         return -1;
     }
     char *temp_buffer = new char[file_size];
-    int read_bytes = fread(temp_buffer, sizeof(char), read_bytes, fp);
+    int read_bytes = fread(temp_buffer, sizeof(char), file_size, fp);
     fclose(fp);
 
     std::cout << read_bytes << "<><><><><><><>" << file_size << std::endl;
