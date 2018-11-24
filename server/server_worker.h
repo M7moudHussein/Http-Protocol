@@ -21,7 +21,7 @@ private:
     bool post_in_queue;
     bool has_timed_out;
     std::queue<request *> requests_queue;
-    int socket_no;
+    int socket_fd;
 
     void retrieve_requests();
 

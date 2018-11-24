@@ -17,18 +17,20 @@ void server_dispatcher::run_server(int port_no) {
 
     int server_fd = server_dispatcher::init_server(&address);
 
-    while (true) {
-        if (listen(server_fd, 10) < 0) {
-            perror("listen");
-            exit(EXIT_FAILURE);
-        }
+    if (listen(server_fd, 10) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
 
+    while (true) {
         int socket_no = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address_len);
         if (socket_no < 0) {
             perror("accept");
             continue;
         }
+
         std::cout << "Connection created on socket: " << socket_no << std::endl;
+
         server_worker *worker = new server_worker(socket_no);
         worker->start();
     }

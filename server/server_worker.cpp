@@ -5,10 +5,11 @@
 #include <zconf.h>
 #include <sys/socket.h>
 #include <cstring>
+#include <algorithm>
 #include "server_worker.h"
 
 server_worker::server_worker(int socket_no) {
-    this->socket_no = socket_no;
+    this->socket_fd = socket_no;
     post_in_queue = false;
     has_timed_out = false;
 }
@@ -27,45 +28,52 @@ void server_worker::retrieve_requests() {
             continue;
         }
         FD_ZERO(&read_fds);
-        FD_SET(socket_no, &read_fds);
+        FD_SET(socket_fd, &read_fds);
         tv.tv_sec = 20;
         tv.tv_usec = 0;
-        int activity = select(socket_no + 1, &read_fds, NULL, NULL, &tv);
+
+        int activity = select(socket_fd + 1, &read_fds, NULL, NULL, &tv);
+
         if (activity == -1) {
             perror("Error while waiting for new requests");
-            close(socket_no);
+            close(socket_fd);
             exit(EXIT_FAILURE);
         } else if (activity == 0) {
             std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
             break;
-        } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
+        } else if (activity > 0 && FD_ISSET(socket_fd, &read_fds)) {
+            if (http_utils::is_closed(socket_fd)) {
+                close(socket_fd);
+            }
             pull_requests();
         }
     }
 }
 
 void server_worker::pull_requests() {
-    ssize_t read_bytes = recv(socket_no, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
+    ssize_t read_bytes = recv(socket_fd, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
 
-    if (read_bytes == 0)
+    if (read_bytes == 0) {
+        //TODO https://stackoverflow.com/questions/5640144/c-how-to-use-select-to-see-if-a-socket-has-closed?fbclid=IwAR0P_NmJ8z-O77lNhDXnoBuOn_E78sJp7c1bu3lyd2Kbsu2ce2OfN_r-w7c
         return;
-    else if (read_bytes < 0) {
+    } else if (read_bytes < 0) {
         perror("Error while reading from socket");
         return;
     }
     std::cout << "Request received: " << std::endl;
-    std::vector<size_t> header_ends = http_utils::findHeaderEnds(request_buffer);
     std::string buffer_string = std::string(request_buffer, read_bytes);
+    std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
     std::cout << buffer_string << std::endl;
     size_t prev_pos = 0;
     for (size_t req_start_pos : header_ends) {
-        std::string req_string = buffer_string.substr(prev_pos, req_start_pos + 4);
+        std::string req_string = buffer_string.substr(prev_pos, req_start_pos);
         request *req = new request();
         req->build_header(req_string);
         this->requests_queue.push(req);
         if (req->get_method() == POST) {
             post_in_queue = true;
+            //TODO handle dropped requests in case of break;
         }
         prev_pos = req_start_pos + 4;
     }
@@ -92,7 +100,7 @@ void server_worker::process_requests() {
             std::cout << "Response for " << method << " sent: " << std::endl;
             std::cout << response_message << std::endl;
 
-            send(socket_no, response_message.c_str(), response_message.length(), 0);
+            send(socket_fd, response_message.c_str(), response_message.length(), 0);
             if (req->get_method() == POST) {
                 handle_post_followers(req);
             }
@@ -100,7 +108,7 @@ void server_worker::process_requests() {
             delete res;
         }
     }
-    close(socket_no);
+    close(socket_fd);
 }
 
 response *server_worker::handle_get_request(request *request_to_process) {
@@ -134,15 +142,18 @@ response *server_worker::handle_post_request(request *request_to_process) {
 }
 
 void server_worker::handle_post_followers(request *request_to_process) {
-    int total_read = 0;
-    while (total_read < request_to_process->get_content_length()) {
-        ssize_t bytes_read = recv(socket_no, request_buffer, REQUEST_BUFFER_SIZE, 0);
+    int size_to_read = request_to_process->get_content_length();
+    std::cout << "Reading post data with length " << request_to_process->get_content_length() << std::endl;
+    while (size_to_read > 0) {
+        ssize_t bytes_read = recv(socket_fd, request_buffer, std::min(size_to_read, REQUEST_BUFFER_SIZE), 0);
         if (bytes_read == -1) {
             perror("Error while receiving data");
             break;
         }
-        total_read += bytes_read;
+        size_to_read -= bytes_read;
         file_writer writer;
+        std::cout << std::string(request_buffer, bytes_read) << std::endl;
+        //TODO write stream
         writer.write(request_to_process->get_url(), std::string(request_buffer, bytes_read));
     }
     post_in_queue = false;

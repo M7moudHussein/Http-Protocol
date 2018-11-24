@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
+#include <queue>
 #include <response.h>
 #include <file_writer.h>
 #include <request.h>
@@ -37,11 +38,14 @@ public:
 
     bool is_post_in_process();
 
+    void push_request(request* req);
+
 private:
     int sock_fd = 0;
     std::string server_ip;
     file_writer writer;
     request *curr_req;
+    std::queue<request *> requests_queue;
     bool post_in_process;
 };
 

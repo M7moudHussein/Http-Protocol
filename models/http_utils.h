@@ -29,7 +29,10 @@ enum response_status_code {
 class http_utils {
 public:
     static std::string get_content_type(std::string url);
-    static std::vector<size_t > findHeaderEnds(std::string recieved_buffer);
+
+    static std::vector<size_t> findHeaderEnds(std::string received_buffer);
+
+    static bool is_closed(int socket_fd);
 };
 
 

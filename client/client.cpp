@@ -1,6 +1,8 @@
 #include <file_reader.h>
 #include <iostream>
 #include <zconf.h>
+#include <asm/ioctls.h>
+#include <sys/ioctl.h>
 #include "client.h"
 
 client::client(std::string server_ip) {
@@ -63,6 +65,7 @@ void client::process_response() {
         tv.tv_sec = 40;
         tv.tv_usec = 0;
         int activity = select(sock_fd + 1, &read_fds, NULL, NULL, &tv);
+
         if (activity < 0) {
             perror("Error while waiting to receive data");
             exit(EXIT_FAILURE);
@@ -70,9 +73,14 @@ void client::process_response() {
             std::cout << "Time Out, No More Responses Sent" << std::endl;
             exit(0);
         } else if (activity > 0 && FD_ISSET(sock_fd, &read_fds)) {
+            if (http_utils::is_closed(sock_fd)) {
+                close_connection();
+            }
+
             ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
             if (read_data_length > 0) {
                 std::cout << std::string(response_buffer, read_data_length) << std::endl;
+
                 response *res = new response();
                 res->build(std::string(response_buffer, read_data_length));
                 if (res->get_status() == response_status_code::CODE_200) {
@@ -110,6 +118,7 @@ void client::handle_post_request(request *req) {
     //TODO handle chunks
     std::cout << file_data << std::endl;
     send(sock_fd, file_data.c_str(), file_data.length(), 0);
+
     this->post_in_process = false;
 }
 
@@ -119,4 +128,8 @@ void client::set_post_in_process() {
 
 bool client::is_post_in_process() {
     return this->post_in_process;
+}
+
+void client::push_request(request *req) {
+    this->requests_queue.push(req);
 }
