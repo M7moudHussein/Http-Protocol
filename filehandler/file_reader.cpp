@@ -19,13 +19,16 @@ std::vector<std::string> file_reader::read_requests_file(std::string request_fil
 int file_reader::read_file(std::string url, std::string *buffer) {
     std::string absolute_path = get_absolute_url(url);
     int file_size = get_file_size(url);
-    FILE *fp = fopen(absolute_path.c_str(), "r");
+    FILE *fp = fopen(absolute_path.c_str(), "rb");
     if (fp == NULL) {
         return -1;
     }
     char *temp_buffer = new char[file_size];
     int read_bytes = fread(temp_buffer, sizeof(char), read_bytes, fp);
     fclose(fp);
+
+    std::cout << read_bytes << "<><><><><><><>" << file_size << std::endl;
+
     if (read_bytes != file_size) {
         perror("Error reading file");
         exit(EXIT_FAILURE);
