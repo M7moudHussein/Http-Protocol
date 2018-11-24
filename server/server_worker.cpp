@@ -38,7 +38,7 @@ void server_worker::retrieve_requests() {
         } else if (activity == 0) {
             std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
-            //exit(0);
+            break;
         } else if (activity > 0 && FD_ISSET(socket_no, &read_fds)) {
             pull_requests();
         }
@@ -48,16 +48,16 @@ void server_worker::retrieve_requests() {
 void server_worker::pull_requests() {
     ssize_t read_bytes = recv(socket_no, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
 
-    if(read_bytes == 0)
+    if (read_bytes == 0)
         return;
     else if (read_bytes < 0) {
         perror("Error while reading from socket");
         return;
     }
     std::cout << "Request received: " << std::endl;
-    std::cout << request_buffer << std::endl;
     std::vector<size_t> header_ends = http_utils::findHeaderEnds(request_buffer);
     std::string buffer_string = std::string(request_buffer, read_bytes);
+    std::cout << buffer_string << std::endl;
     size_t prev_pos = 0;
     for (size_t req_start_pos : header_ends) {
         std::string req_string = buffer_string.substr(prev_pos, req_start_pos + 4);

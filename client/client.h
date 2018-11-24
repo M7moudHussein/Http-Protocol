@@ -30,13 +30,19 @@ public:
     void process_response();
 
     void set_current_request(request *current_request);
+
     std::thread *receiver_thread;
+
+    void set_post_in_process();
+
+    bool is_post_in_process();
 
 private:
     int sock_fd = 0;
     std::string server_ip;
     file_writer writer;
     request *curr_req;
+    bool post_in_process;
 };
 
 #endif

@@ -5,6 +5,7 @@
 
 client::client(std::string server_ip) {
     client::server_ip = server_ip;
+    this->post_in_process = false;
 }
 
 void client::start() {
@@ -71,13 +72,15 @@ void client::process_response() {
         } else if (activity > 0 && FD_ISSET(sock_fd, &read_fds)) {
             ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
             if (read_data_length > 0) {
+                std::cout << std::string(response_buffer, read_data_length) << std::endl;
                 response *res = new response();
-                std::cout<<"Activity: "<<activity<<" Type: "<<curr_req->get_method()<<"\n";
                 res->build(std::string(response_buffer, read_data_length));
                 if (res->get_status() == response_status_code::CODE_200) {
                     if (curr_req->get_method() == GET) {
+                        std::cout << "PROCESSING GET RESPONSE" << std::endl;
                         handle_get_response(curr_req, res);
                     } else {
+                        std::cout << "PROCESSING POST REQUEST" << std::endl;
                         handle_post_request(curr_req);
                     }
                 } else {
@@ -99,10 +102,21 @@ void client::handle_get_response(request *req, response *res) {
 }
 
 void client::handle_post_request(request *req) {
+    std::cout << "handle_post_request" << std::endl;
     std::string file_data;
     file_reader reader;
     reader.read_file(req->get_url(), &file_data);
     //send post uploaded url through the socket to server
     //TODO handle chunks
+    std::cout << file_data << std::endl;
     send(sock_fd, file_data.c_str(), file_data.length(), 0);
+    this->post_in_process = false;
+}
+
+void client::set_post_in_process() {
+    this->post_in_process = true;
+}
+
+bool client::is_post_in_process() {
+    return this->post_in_process;
 }

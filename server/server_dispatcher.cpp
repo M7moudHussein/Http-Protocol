@@ -26,7 +26,7 @@ void server_dispatcher::run_server(int port_no) {
         int socket_no = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address_len);
         if (socket_no < 0) {
             perror("accept");
-            exit(EXIT_FAILURE);
+            continue;
         }
         std::cout << "Connection created on socket: " << socket_no << std::endl;
         server_worker *worker = new server_worker(socket_no);

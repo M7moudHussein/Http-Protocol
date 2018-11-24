@@ -1,9 +1,5 @@
-//TODO in properties url. define HTTP_VERSION 1.0
 #include <file_reader.h>
-#include <iostream>
 #include "client.h"
-
-#define MAX_BUFFER_SIZE 1452 //TODO properties
 
 int main(int argc, char const *argv[]) {
     //TODO check on argv
@@ -14,24 +10,22 @@ int main(int argc, char const *argv[]) {
     bool connected = client.establish_connection(8080);
     if (!connected)
         exit(EXIT_FAILURE);
-    for (std::string test_request: test_requests) {
+
+    for (const std::string &test_request: test_requests) {
         request *req = new request(test_request);
+
+        if (req->get_method() == POST)
+            client.set_post_in_process();
+
         if (client.send_request(req) < 0) {
-            // TODO HANDLE SENDING ERRORS
+            perror("Error while sending new request");
+            exit(EXIT_FAILURE);
         }
+
         client.set_current_request(req);
+
+        while (client.is_post_in_process()); // block sending new requests till post is done
     }
     client.receiver_thread->join();
     client.close_connection();
-//    int x = 0;
-//    while (true) {
-//        x++;
-//        if (x == 1000000000) {
-//            x = x / 2;
-//        }
-//        if (x == -1) {
-//            break;
-//        }
-//    }
-//    std::cout << x << std::endl;
 }
