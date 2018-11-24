@@ -49,7 +49,7 @@ int client::close_connection() {
 
 int client::send_request(request *req) {
     std::string req_msg = req->build_request_message();
-    std::cout << req_msg << std::endl;
+    std::cout << "Sending request:\n" << req_msg << "==================" << std::endl;
     return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
 }
 
@@ -93,7 +93,6 @@ void client::handle_get_response(request *req, response *res) {
 }
 
 void client::handle_post_request(request *req) {
-    std::cout << "handle_post_request" << std::endl;
     std::string file_data;
     file_reader reader;
     reader.read_file(req->get_url(), &file_data);
@@ -131,25 +130,25 @@ void client::handle_responses() {
     std::string buffer_string = std::string(response_buffer, read_data_length);
     std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
 
+    std::cout << "===================" << std::endl << buffer_string << std::endl << "===================" << std::endl;
+
     size_t prev_pos = 0;
     for (size_t headers_end_pos : header_ends) {
         curr_req = requests_queue.front();
         requests_queue.pop();
 
-        std::string res_string = buffer_string.substr(prev_pos, headers_end_pos);
+        std::string res_string = buffer_string.substr(prev_pos, headers_end_pos - prev_pos + 1);
         response *res = new response();
         res->build_header(res_string);
         unsigned long body_start_pos = headers_end_pos + 4;
-        res->set_body(buffer_string.substr(body_start_pos, body_start_pos + res->get_content_length()));
+        res->set_body(buffer_string.substr(body_start_pos, res->get_content_length()));
 
-        std::cout << res->build_response_message() << std::endl;
+//        std::cout << res->build_response_message() << std::endl;
 
         if (res->get_status() == response_status_code::CODE_200) {
             if (curr_req->get_method() == GET) {
-                std::cout << "PROCESSING GET RESPONSE" << std::endl;
                 handle_get_response(curr_req, res);
             } else {
-                std::cout << "PROCESSING POST REQUEST" << std::endl;
                 handle_post_request(curr_req);
             }
         }

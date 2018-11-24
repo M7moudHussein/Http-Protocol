@@ -64,7 +64,7 @@ void server_worker::pull_requests() {
     std::cout << buffer_string << std::endl;
     size_t prev_pos = 0;
     for (size_t req_start_pos : header_ends) {
-        std::string req_string = buffer_string.substr(prev_pos, req_start_pos);
+        std::string req_string = buffer_string.substr(prev_pos, req_start_pos - prev_pos + 1);
         request *req = new request();
         req->build_header(req_string);
         this->requests_queue.push(req);

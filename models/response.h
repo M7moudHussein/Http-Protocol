@@ -17,8 +17,6 @@ public:
 
     std::string build_response_message();
 
-    void build(std::string res_msg);
-
     void set_body(std::string body);
 
     std::string get_body();

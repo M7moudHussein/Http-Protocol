@@ -8,8 +8,6 @@ response::response() {
 }
 
 std::string response::build_response_message() {
-    std::cout << "====>" << header_fields[CONTENT_LENGTH] << std::endl;
-    std::cout << "====>" << header_fields[CONTENT_TYPE] << std::endl;
     std::string response_message = this->http_version + " " + get_status_string() + CARRIAGE_RET + LINE_FEED;
 
     for (auto const &header_field : header_fields) {
@@ -18,29 +16,6 @@ std::string response::build_response_message() {
     response_message = response_message + CARRIAGE_RET + LINE_FEED;
     response_message += body;
     return response_message;
-}
-
-void response::build(std::string res_msg) {
-    std::string status_line = res_msg.substr(0, res_msg.find(CARRIAGE_RET));
-    std::stringstream status_line_stream(status_line);
-
-    std::string status_code;
-    status_line_stream >> this->http_version >> status_code;
-    this->status_code = status_code == "200" ? CODE_200 : CODE_404;
-
-    std::string headers_end;
-    headers_end = headers_end + CARRIAGE_RET + LINE_FEED + CARRIAGE_RET + LINE_FEED;
-
-    std::string headers = res_msg.substr(res_msg.find(LINE_FEED) + 1, res_msg.rfind(headers_end));
-    std::stringstream headers_stream(headers);
-
-    std::string header_field;
-    while (getline(headers_stream, header_field)) {
-        std::string key = header_field.substr(0, header_field.find(':'));
-        std::string val = header_field.substr(header_field.find(": ") + 1);
-        this->header_fields[key] = val;
-    }
-    this->body = res_msg.substr(res_msg.find(headers_end) + headers_end.length());
 }
 
 response_status_code response::get_status() {
