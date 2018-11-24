@@ -59,7 +59,7 @@ void client::process_response() {
     while (true) {
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
-        tv.tv_sec = 20;
+        tv.tv_sec = 40;
         tv.tv_usec = 0;
         int activity = select(sock_fd + 1, &read_fds, NULL, NULL, &tv);
         if (activity < 0) {
