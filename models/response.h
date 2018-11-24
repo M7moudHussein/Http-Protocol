@@ -29,6 +29,10 @@ public:
 
     void set_content_length(int content_length);
 
+    void build_header(std::string header_string);
+
+    int get_content_length();
+
 private:
     response_status_code status_code;
     std::map<std::string, std::string> header_fields;

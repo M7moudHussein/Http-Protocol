@@ -54,10 +54,7 @@ void server_worker::retrieve_requests() {
 void server_worker::pull_requests() {
     ssize_t read_bytes = recv(socket_fd, this->request_buffer, REQUEST_BUFFER_SIZE, 0);
 
-    if (read_bytes == 0) {
-        //TODO https://stackoverflow.com/questions/5640144/c-how-to-use-select-to-see-if-a-socket-has-closed?fbclid=IwAR0P_NmJ8z-O77lNhDXnoBuOn_E78sJp7c1bu3lyd2Kbsu2ce2OfN_r-w7c
-        return;
-    } else if (read_bytes < 0) {
+    if (read_bytes <= 0) {
         perror("Error while reading from socket");
         return;
     }

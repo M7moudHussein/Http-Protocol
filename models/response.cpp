@@ -8,6 +8,8 @@ response::response() {
 }
 
 std::string response::build_response_message() {
+    std::cout << "====>" << header_fields[CONTENT_LENGTH] << std::endl;
+    std::cout << "====>" << header_fields[CONTENT_TYPE] << std::endl;
     std::string response_message = this->http_version + " " + get_status_string() + CARRIAGE_RET + LINE_FEED;
 
     for (auto const &header_field : header_fields) {
@@ -79,4 +81,30 @@ std::string response::get_status_string() {
 
 void response::set_content_length(int content_length) {
     this->header_fields[CONTENT_LENGTH] = std::to_string(content_length);
+}
+
+
+void response::build_header(std::string header) {
+    std::string status_line = header.substr(0, header.find(CARRIAGE_RET));
+    std::stringstream request_line_stream(status_line);
+
+    std::string status;
+    request_line_stream >> http_version >> status;
+
+    status_code = status == "200" ? CODE_200 : CODE_404;
+
+    std::string header_lines = header.substr(header.find(LINE_FEED) + 1);
+    std::stringstream headers_stream(header_lines);
+
+    std::string header_field;
+    while (getline(headers_stream, header_field)) {
+        std::string key = header_field.substr(0, header_field.find(':'));
+        std::string val = header_field.substr(header_field.find(": ") + 2)
+                .substr(0, header_field.rfind(CARRIAGE_RET));
+        this->header_fields[key] = val;
+    }
+}
+
+int response::get_content_length() {
+    return stoi(header_fields[CONTENT_LENGTH]);
 }

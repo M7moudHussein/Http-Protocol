@@ -80,7 +80,7 @@ void request::build_header(std::string header) {
     std::string header_field;
     while (getline(headers_stream, header_field)) {
         std::string key = header_field.substr(0, header_field.find(':'));
-        std::string val = header_field.substr(header_field.find(": ") + 1)
+        std::string val = header_field.substr(header_field.find(": ") + 2)
                 .substr(0, header_field.rfind(CARRIAGE_RET));
         this->header_fields[key] = val;
     }

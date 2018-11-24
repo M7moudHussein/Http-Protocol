@@ -59,9 +59,6 @@ void client::process_response() {
     while (!this->is_last_request || !this->requests_queue.empty()) {
         while (this->requests_queue.empty());
 
-        curr_req = requests_queue.front();
-        requests_queue.pop();
-
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
         tv.tv_sec = 40;
@@ -125,13 +122,27 @@ void client::set_last_request() {
 }
 
 void client::handle_responses() {
-//TODO handle receiving in loop
     ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
-    if (read_data_length > 0) {
-        std::cout << std::string(response_buffer, read_data_length) << std::endl;
+    if (read_data_length <= 0) {
+        perror("Error receiving response");
+        exit(EXIT_FAILURE);
+    }
 
+    std::string buffer_string = std::string(response_buffer, read_data_length);
+    std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
+
+    size_t prev_pos = 0;
+    for (size_t headers_end_pos : header_ends) {
+        curr_req = requests_queue.front();
+        requests_queue.pop();
+
+        std::string res_string = buffer_string.substr(prev_pos, headers_end_pos);
         response *res = new response();
-        res->build(std::string(response_buffer, read_data_length));
+        res->build_header(res_string);
+        unsigned long body_start_pos = headers_end_pos + 4;
+        res->set_body(buffer_string.substr(body_start_pos, body_start_pos + res->get_content_length()));
+
+        std::cout << res->build_response_message() << std::endl;
 
         if (res->get_status() == response_status_code::CODE_200) {
             if (curr_req->get_method() == GET) {
@@ -145,8 +156,7 @@ void client::handle_responses() {
 
         delete curr_req;
         delete res;
-    } else {
-        perror("Error receiving response");
-        exit(EXIT_FAILURE);
+
+        prev_pos = body_start_pos + res->get_content_length();
     }
 }
