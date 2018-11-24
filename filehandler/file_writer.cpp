@@ -5,7 +5,7 @@
 
 void file_writer::write(std::string url, std::string buffer) {
     std::string absolute_url = get_absolute_url(url);
-    FILE *file = fopen(absolute_url.c_str(), "w");
+    FILE *file = fopen(absolute_url.c_str(), "a");
     fwrite(buffer.c_str(), sizeof(char), buffer.length(), file);
     fclose(file);
 }

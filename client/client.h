@@ -30,8 +30,6 @@ public:
 
     void process_response();
 
-    void set_current_request(request *current_request);
-
     std::thread *receiver_thread;
 
     void set_post_in_process();
@@ -40,13 +38,19 @@ public:
 
     void push_request(request* req);
 
+    void set_last_request();
+
 private:
+    char *response_buffer;
     int sock_fd = 0;
     std::string server_ip;
     file_writer writer;
     request *curr_req;
     std::queue<request *> requests_queue;
     bool post_in_process;
+    bool is_last_request;
+
+    void handle_responses();
 };
 
 #endif

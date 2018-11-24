@@ -13,7 +13,7 @@ int main(int argc, char const *argv[]) {
 
     for (const std::string &test_request: test_requests) {
         request *req = new request(test_request);
-        client.set_current_request(req);
+        client.push_request(req);
 
         if (req->get_method() == POST)
             client.set_post_in_process();
@@ -25,5 +25,6 @@ int main(int argc, char const *argv[]) {
 
         while (client.is_post_in_process()); // block sending new requests till post is done
     }
+    client.set_last_request();
     client.receiver_thread->join();
 }

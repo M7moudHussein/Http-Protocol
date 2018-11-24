@@ -7,15 +7,13 @@
 
 client::client(std::string server_ip) {
     client::server_ip = server_ip;
+    response_buffer = new char[MAX_BUFFER_SIZE];
     this->post_in_process = false;
+    this->is_last_request = false;
 }
 
 void client::start() {
     receiver_thread = new std::thread(&client::process_response, this);
-}
-
-void client::set_current_request(request *current_request) {
-    this->curr_req = current_request;
 }
 
 bool client::establish_connection(int server_port) {
@@ -56,10 +54,14 @@ int client::send_request(request *req) {
 }
 
 void client::process_response() {
-    char *response_buffer = new char[MAX_BUFFER_SIZE];
     fd_set read_fds;
     struct timeval tv{};
-    while (true) {
+    while (!this->is_last_request || !this->requests_queue.empty()) {
+        while (this->requests_queue.empty());
+
+        curr_req = requests_queue.front();
+        requests_queue.pop();
+
         FD_ZERO(&read_fds);
         FD_SET(sock_fd, &read_fds);
         tv.tv_sec = 40;
@@ -74,31 +76,15 @@ void client::process_response() {
             exit(0);
         } else if (activity > 0 && FD_ISSET(sock_fd, &read_fds)) {
             if (http_utils::is_closed(sock_fd)) {
-                close_connection();
-            }
-
-            ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
-            if (read_data_length > 0) {
-                std::cout << std::string(response_buffer, read_data_length) << std::endl;
-
-                response *res = new response();
-                res->build(std::string(response_buffer, read_data_length));
-                if (res->get_status() == response_status_code::CODE_200) {
-                    if (curr_req->get_method() == GET) {
-                        std::cout << "PROCESSING GET RESPONSE" << std::endl;
-                        handle_get_response(curr_req, res);
-                    } else {
-                        std::cout << "PROCESSING POST REQUEST" << std::endl;
-                        handle_post_request(curr_req);
-                    }
+                if (requests_queue.empty() && is_last_request) {
+                    std::cout << "Success" << std::endl;
                 } else {
-                    // TODO HANDLE 'NOT FOUND' ERROR
+                    std::cout << "Some requests were not served" << std::endl;
                 }
-                delete res;
-            } else {
+                close_connection();
                 break;
-                // TODO HANDLE RECEIVING ERRORS
             }
+            handle_responses();
         }
     }
     delete[] response_buffer;
@@ -132,4 +118,35 @@ bool client::is_post_in_process() {
 
 void client::push_request(request *req) {
     this->requests_queue.push(req);
+}
+
+void client::set_last_request() {
+    this->is_last_request = true;
+}
+
+void client::handle_responses() {
+//TODO handle receiving in loop
+    ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
+    if (read_data_length > 0) {
+        std::cout << std::string(response_buffer, read_data_length) << std::endl;
+
+        response *res = new response();
+        res->build(std::string(response_buffer, read_data_length));
+
+        if (res->get_status() == response_status_code::CODE_200) {
+            if (curr_req->get_method() == GET) {
+                std::cout << "PROCESSING GET RESPONSE" << std::endl;
+                handle_get_response(curr_req, res);
+            } else {
+                std::cout << "PROCESSING POST REQUEST" << std::endl;
+                handle_post_request(curr_req);
+            }
+        }
+
+        delete curr_req;
+        delete res;
+    } else {
+        perror("Error receiving response");
+        exit(EXIT_FAILURE);
+    }
 }
