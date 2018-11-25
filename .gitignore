@@ -1,3 +1,6 @@
 .idea/
 cmake-build-debug/
-!cmake-build-debug/test.txt
+!cmake-build-debug/sample_file_in_server.txt
+!cmake-build-debug/sample_html.html
+!cmake-build-debug/test_image.jpg
+!cmake-build-debug/input.txt

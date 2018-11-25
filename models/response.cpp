@@ -8,13 +8,18 @@ response::response() {
 }
 
 std::string response::build_response_message() {
+    std::string response_message = this->get_headers_as_string();
+    response_message += body;
+    return response_message;
+}
+
+std::string response::get_headers_as_string() {
     std::string response_message = this->http_version + " " + get_status_string() + CARRIAGE_RET + LINE_FEED;
 
     for (auto const &header_field : header_fields) {
         response_message += header_field.first + ": " + header_field.second + CARRIAGE_RET + LINE_FEED;
     }
     response_message = response_message + CARRIAGE_RET + LINE_FEED;
-    response_message += body;
     return response_message;
 }
 

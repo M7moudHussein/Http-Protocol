@@ -17,6 +17,8 @@ public:
 
     std::string build_response_message();
 
+    std::string get_headers_as_string();
+
     void set_body(std::string body);
 
     std::string get_body();

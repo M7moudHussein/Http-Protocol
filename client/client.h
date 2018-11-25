@@ -1,6 +1,6 @@
 #ifndef HTTP_PROTOCOL_CLIENT_H
 #define HTTP_PROTOCOL_CLIENT_H
-#define MAX_BUFFER_SIZE 1 << 13
+#define MAX_BUFFER_SIZE 8192
 
 #include <sys/socket.h>
 #include <thread>
@@ -24,7 +24,7 @@ public:
 
     int send_request(request *req);
 
-    void handle_get_response(request *, response *);
+    void handle_get_response(request *, response *, std::string string, int body_start_pos);
 
     void handle_post_request(request *);
 
@@ -36,7 +36,7 @@ public:
 
     bool is_post_in_process();
 
-    void push_request(request* req);
+    void push_request(request *req);
 
     void set_last_request();
 

@@ -15,17 +15,15 @@ public:
 
     std::string get_url();
 
-    int get_port_num();
-
     long get_content_length();
 
     std::string build_request_message();
 
+    std::string get_header_as_string();
+
     std::string get_http_version();
 
     void build_header(std::string header);
-
-    void build_body(std::string body);
 
 private:
     std::string request_line;

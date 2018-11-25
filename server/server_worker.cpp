@@ -58,10 +58,8 @@ void server_worker::pull_requests() {
         perror("Error while reading from socket");
         return;
     }
-    std::cout << "Request received: " << std::endl;
     std::string buffer_string = std::string(request_buffer, read_bytes);
     std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
-    std::cout << buffer_string << std::endl;
     size_t prev_pos = 0;
     for (size_t req_start_pos : header_ends) {
         std::string req_string = buffer_string.substr(prev_pos, req_start_pos - prev_pos + 1);
@@ -94,8 +92,9 @@ void server_worker::process_requests() {
             std::string response_message = res->build_response_message();
             std::string method = req->get_method() == GET ? "GET" : "POST";
 
-            std::cout << "Response for " << method << " sent: " << std::endl;
-            std::cout << response_message << std::endl;
+            std::cout << "Responding with header: " << std::endl;
+            std::cout << res->get_headers_as_string() << std::endl;
+            std::cout << "==========================" << std::endl;
 
             send(socket_fd, response_message.c_str(), response_message.length(), 0);
             if (req->get_method() == POST) {

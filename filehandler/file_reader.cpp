@@ -27,8 +27,6 @@ int file_reader::read_file(std::string url, std::string *buffer) {
     int read_bytes = fread(temp_buffer, sizeof(char), file_size, fp);
     fclose(fp);
 
-    std::cout << read_bytes << "<><><><><><><>" << file_size << std::endl;
-
     if (read_bytes != file_size) {
         perror("Error reading file");
         exit(EXIT_FAILURE);

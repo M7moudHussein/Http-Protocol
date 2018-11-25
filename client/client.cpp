@@ -49,7 +49,9 @@ int client::close_connection() {
 
 int client::send_request(request *req) {
     std::string req_msg = req->build_request_message();
-    std::cout << "Sending request:\n" << req_msg << "==================" << std::endl;
+    std::cout << "Requesting with headers: " << std::endl;
+    std::cout << req->get_header_as_string() << std::endl;
+    std::cout << "===========================" << std::endl;
     return send(sock_fd, req_msg.c_str(), req_msg.length(), 0);
 }
 
@@ -87,8 +89,62 @@ void client::process_response() {
     delete[] response_buffer;
 }
 
+void client::handle_responses() {
+    ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
+    if (read_data_length <= 0) {
+        perror("Error receiving response");
+        exit(EXIT_FAILURE);
+    }
 
-void client::handle_get_response(request *req, response *res) {
+    std::string buffer_string = std::string(response_buffer, read_data_length);
+    std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
+    if (header_ends.size() == 0) {
+        perror("Headers max length exceeded");
+        requests_queue.pop();
+        return;
+    }
+
+    size_t prev_pos = 0;
+    for (size_t headers_end_pos : header_ends) {
+        curr_req = requests_queue.front();
+        requests_queue.pop();
+
+        std::string res_string = buffer_string.substr(prev_pos, headers_end_pos - prev_pos + 1);
+        response *res = new response();
+        res->build_header(res_string);
+        size_t body_start_pos = headers_end_pos + 4;
+
+        if (res->get_status() == response_status_code::CODE_200) {
+            if (curr_req->get_method() == GET) {
+                handle_get_response(curr_req, res, buffer_string, body_start_pos);
+            } else {
+                handle_post_request(curr_req);
+            }
+        }
+
+        delete curr_req;
+        delete res;
+
+        prev_pos = body_start_pos + res->get_content_length();
+    }
+}
+
+void client::handle_get_response(request *req, response *res, std::string res_string, int body_start_pos) {
+    int body_len_in_res = std::min(res->get_content_length(), (int) (res_string.length() - body_start_pos));
+    std::string body = res_string.substr(body_start_pos, body_len_in_res);
+    int rem_len = res->get_content_length() - body.length();
+
+    while (rem_len > 0) {
+        ssize_t read_data_length = recv(sock_fd, response_buffer, std::min(rem_len, MAX_BUFFER_SIZE), 0);
+        if (read_data_length <= 0) {
+            perror("Error receiving data");
+            exit(EXIT_FAILURE);
+        }
+        body += std::string(response_buffer, read_data_length);
+        rem_len -= read_data_length;
+    }
+    res->set_body(body);
+
     writer.write(req->get_url(), res->get_body());
 }
 
@@ -96,9 +152,6 @@ void client::handle_post_request(request *req) {
     std::string file_data;
     file_reader reader;
     reader.read_file(req->get_url(), &file_data);
-    //send post uploaded url through the socket to server
-    //TODO handle chunks
-    std::cout << file_data << std::endl;
     send(sock_fd, file_data.c_str(), file_data.length(), 0);
 
     this->post_in_process = false;
@@ -118,44 +171,4 @@ void client::push_request(request *req) {
 
 void client::set_last_request() {
     this->is_last_request = true;
-}
-
-void client::handle_responses() {
-    ssize_t read_data_length = recv(sock_fd, response_buffer, MAX_BUFFER_SIZE, 0);
-    if (read_data_length <= 0) {
-        perror("Error receiving response");
-        exit(EXIT_FAILURE);
-    }
-
-    std::string buffer_string = std::string(response_buffer, read_data_length);
-    std::vector<size_t> header_ends = http_utils::findHeaderEnds(buffer_string);
-
-    std::cout << "===================" << std::endl << buffer_string << std::endl << "===================" << std::endl;
-
-    size_t prev_pos = 0;
-    for (size_t headers_end_pos : header_ends) {
-        curr_req = requests_queue.front();
-        requests_queue.pop();
-
-        std::string res_string = buffer_string.substr(prev_pos, headers_end_pos - prev_pos + 1);
-        response *res = new response();
-        res->build_header(res_string);
-        unsigned long body_start_pos = headers_end_pos + 4;
-        res->set_body(buffer_string.substr(body_start_pos, res->get_content_length()));
-
-//        std::cout << res->build_response_message() << std::endl;
-
-        if (res->get_status() == response_status_code::CODE_200) {
-            if (curr_req->get_method() == GET) {
-                handle_get_response(curr_req, res);
-            } else {
-                handle_post_request(curr_req);
-            }
-        }
-
-        delete curr_req;
-        delete res;
-
-        prev_pos = body_start_pos + res->get_content_length();
-    }
 }

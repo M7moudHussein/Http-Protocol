@@ -41,23 +41,24 @@ std::string request::get_url() {
     return url;
 }
 
-int request::get_port_num() {
-    return port_number;
-}
-
 long request::get_content_length() {
     return stoi(this->header_fields[CONTENT_LENGTH]);
 }
 
 std::string request::build_request_message() {
+    std::string request_message = this->get_header_as_string();
+    request_message = request_message + body;
+    return request_message;
+}
+
+std::string request::get_header_as_string() {
     std::string request_message;
     request_message = (method == GET ? "GET " : "POST ") + url + " " + http_version + CARRIAGE_RET + LINE_FEED;
     for (auto const &header_field : header_fields) {
         request_message += header_field.first + ": " + header_field.second + CARRIAGE_RET + LINE_FEED;
     }
-
     request_message = request_message + CARRIAGE_RET + LINE_FEED;
-    request_message = request_message + body;
+
     return request_message;
 }
 
@@ -84,8 +85,4 @@ void request::build_header(std::string header) {
                 .substr(0, header_field.rfind(CARRIAGE_RET));
         this->header_fields[key] = val;
     }
-}
-
-void request::build_body(std::string body) {
-    this->body = body;
 }
