@@ -14,11 +14,11 @@ int main(int argc, char const *argv[]) {
     std::vector<std::string> test_requests = reader.read_requests_file("/input.txt");
 
     /* Start client, along with its associated threads */
-    client client("127.0.0.1");
+    client client(argv[1]);
     client.start();
 
     /* Connect to the server */
-    bool connected = client.establish_connection(8080);
+    bool connected = client.establish_connection(atoi(argv[2]));
     if (!connected)
         exit(EXIT_FAILURE);
 

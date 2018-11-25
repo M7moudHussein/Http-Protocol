@@ -158,7 +158,6 @@ void server_worker::handle_post_followers(request *request_to_process) {
         }
         size_to_read -= bytes_read;
         file_writer writer;
-        std::cout << std::string(request_buffer, bytes_read) << std::endl;
         //TODO write stream
         writer.write(request_to_process->get_url(), std::string(request_buffer, bytes_read));
     }
