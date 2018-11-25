@@ -50,6 +50,7 @@ void server_worker::retrieve_requests() {
         } else if (activity > 0 && FD_ISSET(socket_fd, &read_fds)) {
             if (http_utils::is_closed(socket_fd)) {
                 close(socket_fd);
+                return;
             }
             pull_requests();
         }
