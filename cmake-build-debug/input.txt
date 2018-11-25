@@ -1,0 +1,5 @@
+GET /test_image.jpg server 8080
+POST /test_image2.jpg server 8080
+GET /sample_html.html server 8080
+POST /test_image3.jpg server 8080
+GET /sample_file_in_server.txt server 8080

@@ -14,6 +14,8 @@ server_worker::server_worker(int socket_no) {
     has_timed_out = false;
 }
 
+/* delegates the mission of retrieving the request from TCP socket buffer
+ * and processing the sent requests to 2 different threads */
 void server_worker::start() {
     new std::thread(&server_worker::retrieve_requests, this);
     new std::thread(&server_worker::process_requests, this);
@@ -32,12 +34,15 @@ void server_worker::retrieve_requests() {
         tv.tv_sec = 20;
         tv.tv_usec = 0;
 
+        /* check if data was put on the recv buffer of server or a change happened */
         int activity = select(socket_fd + 1, &read_fds, NULL, NULL, &tv);
 
         if (activity == -1) {
             perror("Error while waiting for new requests");
             close(socket_fd);
             exit(EXIT_FAILURE);
+
+            /* connection timed out which indicates no more requests were received from client */
         } else if (activity == 0) {
             std::cout << "Connection timeout, No More Requests Received" << std::endl;
             has_timed_out = true;
@@ -68,7 +73,6 @@ void server_worker::pull_requests() {
         this->requests_queue.push(req);
         if (req->get_method() == POST) {
             post_in_queue = true;
-            //TODO handle dropped requests in case of break;
         }
         prev_pos = req_start_pos + 4;
     }
@@ -80,6 +84,7 @@ void server_worker::process_requests() {
             request *req = requests_queue.front();
             requests_queue.pop();
             response *res = nullptr;
+            /*process the received requests according to their type */
             switch (req->get_method()) {
                 case GET:
                     res = handle_get_request(req);
@@ -89,6 +94,7 @@ void server_worker::process_requests() {
                     break;
             }
 
+            /* build the response message to be sent back to the client */
             std::string response_message = res->build_response_message();
             std::string method = req->get_method() == GET ? "GET" : "POST";
 
@@ -107,6 +113,7 @@ void server_worker::process_requests() {
     close(socket_fd);
 }
 
+/* constructs the GET response and send the requested file back to the client */
 response *server_worker::handle_get_request(request *request_to_process) {
     std::string file_data;
     int data_length;
@@ -128,6 +135,7 @@ response *server_worker::handle_get_request(request *request_to_process) {
     return res;
 }
 
+/* constructs the first response message to the POST request to allow client to then upload the file */
 response *server_worker::handle_post_request(request *request_to_process) {
     response *res = new response();
     res->set_status(CODE_200);
@@ -137,6 +145,7 @@ response *server_worker::handle_post_request(request *request_to_process) {
     return res;
 }
 
+/* handles saving the uploaded file from client after the client receives OK from the server */
 void server_worker::handle_post_followers(request *request_to_process) {
     int size_to_read = request_to_process->get_content_length();
     std::cout << "Reading post data with length " << request_to_process->get_content_length() << std::endl;

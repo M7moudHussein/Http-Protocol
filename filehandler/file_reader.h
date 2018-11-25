@@ -12,12 +12,13 @@
 
 class file_reader {
 public:
-    /** parses the requests file for the client */
+    /* Parses the requests file for the client */
     std::vector<std::string> read_requests_file(std::string request_file);
 
     /** Reads the file into the buffer and returns the number of bytes read*/
     int read_file(std::string file_path, std::string *buffer);
 
+    /* returns the byte size of the file identified by 'ur' */
     int get_file_size(std::string url);
 
 private:

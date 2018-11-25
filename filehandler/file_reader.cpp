@@ -15,7 +15,6 @@ std::vector<std::string> file_reader::read_requests_file(std::string request_fil
     return client_requests;
 }
 
-// TODO: send data in chunks
 int file_reader::read_file(std::string url, std::string *buffer) {
     std::string absolute_path = get_absolute_url(url);
     int file_size = get_file_size(url);
@@ -27,7 +26,7 @@ int file_reader::read_file(std::string url, std::string *buffer) {
     int read_bytes = fread(temp_buffer, sizeof(char), file_size, fp);
     fclose(fp);
 
-    if (read_bytes != file_size) {
+    if (read_bytes != file_size) {// check value returned by 'fread' for errors
         perror("Error reading file");
         exit(EXIT_FAILURE);
     }

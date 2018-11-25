@@ -16,22 +16,28 @@
 
 class request;
 
+/* request types */
 enum request_method {
     GET,
     POST
 };
 
+/* response codes ---> 200 represents OK ... and 404 represents Not Found */
 enum response_status_code {
     CODE_404,
     CODE_200
 };
 
+/* utility functions used by the server and the client */
 class http_utils {
 public:
+    /* retrieve the type of the file whether it is txt, html, image */
     static std::string get_content_type(std::string url);
 
+    /* finds the positions of header ends to split requests */
     static std::vector<size_t> findHeaderEnds(std::string received_buffer);
 
+    /* check if a socket got closed */
     static bool is_closed(int socket_fd);
 };
 

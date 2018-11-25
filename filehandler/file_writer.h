@@ -5,6 +5,7 @@
 
 class file_writer {
 public:
+    /* Writes data identified by 'buffer' in the file identified by 'url' */
     void write(std::string url, std::string buffer);
 
 private:

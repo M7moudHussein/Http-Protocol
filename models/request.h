@@ -11,18 +11,22 @@ public:
 
     request(std::string test_request);
 
+    /* get type of request : GET or POST */
     request_method get_method();
 
     std::string get_url();
 
     long get_content_length();
 
+    /* builds the request message to be sent to the server */
     std::string build_request_message();
 
     std::string get_header_as_string();
 
+    /* determines http version: 1.0 or 1.1 */
     std::string get_http_version();
 
+    /* build the header fields of a request */
     void build_header(std::string header);
 
 private:
