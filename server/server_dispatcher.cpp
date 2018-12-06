@@ -38,7 +38,7 @@ int server_dispatcher::init_server(int port_no) {
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(port_no);
-    int address_len = sizeof(server_address);
+    
     int server_fd;
 
     // Creating socket url descriptor
