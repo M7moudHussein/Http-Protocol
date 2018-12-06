@@ -16,7 +16,7 @@ public :
 private:
     /* creates a TCP socket for the server and attaches this socket
     * to a certain port given the socket address */
-    static int init_server(struct sockaddr_in *address);
+    static int init_server(int i);
 };
 
 #endif //HTTP_PROTOCOL_SERVER_DISPATCHER_H

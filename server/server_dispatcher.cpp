@@ -9,13 +9,10 @@
 #include "server_dispatcher.h"
 
 void server_dispatcher::run_server(int port_no) {
-    struct sockaddr_in server_address, peer_address;
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(port_no);
-    int address_len = sizeof(server_address);
+    struct sockaddr_in peer_address;
+    int peer_addr_len = sizeof(peer_address);
 
-    int server_fd = server_dispatcher::init_server(&server_address);
+    int server_fd = server_dispatcher::init_server(port_no);
 
     if (listen(server_fd, 10) < 0) {
         perror("listen");
@@ -23,7 +20,7 @@ void server_dispatcher::run_server(int port_no) {
     }
 
     while (true) {
-        int socket_no = accept(server_fd, (struct sockaddr *) &peer_address, (socklen_t *) &address_len);
+        int socket_no = accept(server_fd, (struct sockaddr *) &peer_address, (socklen_t *) &peer_addr_len);
         if (socket_no < 0) {
             perror("accept");
             continue;
@@ -36,7 +33,12 @@ void server_dispatcher::run_server(int port_no) {
     }
 }
 
-int server_dispatcher::init_server(struct sockaddr_in *address) {
+int server_dispatcher::init_server(int port_no) {
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(port_no);
+    int address_len = sizeof(server_address);
     int server_fd;
 
     // Creating socket url descriptor
@@ -53,7 +55,7 @@ int server_dispatcher::init_server(struct sockaddr_in *address) {
     }
 
     // Forcefully attaching socket to the port
-    if (bind(server_fd, (struct sockaddr *) address, sizeof(*address)) < 0) {
+    if (bind(server_fd, (struct sockaddr *) &server_address, sizeof(server_address)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
