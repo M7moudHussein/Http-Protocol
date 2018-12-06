@@ -9,13 +9,13 @@
 #include "server_dispatcher.h"
 
 void server_dispatcher::run_server(int port_no) {
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(port_no);
-    int address_len = sizeof(address);
+    struct sockaddr_in server_address, peer_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(port_no);
+    int address_len = sizeof(server_address);
 
-    int server_fd = server_dispatcher::init_server(&address);
+    int server_fd = server_dispatcher::init_server(&server_address);
 
     if (listen(server_fd, 10) < 0) {
         perror("listen");
@@ -23,7 +23,7 @@ void server_dispatcher::run_server(int port_no) {
     }
 
     while (true) {
-        int socket_no = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address_len);
+        int socket_no = accept(server_fd, (struct sockaddr *) &peer_address, (socklen_t *) &address_len);
         if (socket_no < 0) {
             perror("accept");
             continue;
